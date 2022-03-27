@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Commongame;
 using System;
-using Commongame.Data;
+using Commongame.Sound;
 namespace TKRunner
 {
     public class Weapon : MonoBehaviour
@@ -25,12 +25,12 @@ namespace TKRunner
         protected void PlaySwingSound()
         {
             if(PlaySounds)
-                GameManager.Instance.sounds.PlaySingleTime(mySwingSound.ToString());
+                GameManager.Instance._sounds.PlaySingleTime(mySwingSound.ToString());
         }
         protected void PlayHitSound()
         {
             if(PlaySounds)
-                GameManager.Instance.sounds.PlaySingleTime(myHitSound.ToString());
+                GameManager.Instance._sounds.PlaySingleTime(myHitSound.ToString());
         }
 
         protected virtual void AddHitsCount()

@@ -10,7 +10,6 @@ namespace TKRunner
 
     public class PortalSpawnerController : MonoBehaviour, ISpawner
     {
-
         [Header("Settings")]
         public float spawnDelay;
         public GameObject PF;
@@ -86,10 +85,6 @@ namespace TKRunner
             }
         
         }
-        public void ReShaffleSpawners()
-        {
-            
-        }
         public void SetOnSpawnEvent(Action<GameObject> onSpawn) => onEnemySpawn = onSpawn;
 
         public void SetEqualSpawnCount(int count)
@@ -99,7 +94,6 @@ namespace TKRunner
                 spawner.SetSpawnCount(count);
             }
         }
-
 
         private void OneByOneSpawning()
         {

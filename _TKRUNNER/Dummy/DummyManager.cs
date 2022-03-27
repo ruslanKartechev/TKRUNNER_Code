@@ -1,6 +1,6 @@
 ﻿using Dreamteck.Splines;
 using Commongame;
-using Commongame.Data;
+using Commongame.Sound;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,16 +10,12 @@ using UnityEditor;
 using UnityEngine;
 namespace TKRunner
 {
-    public enum DummyStates
-    {
-        Idle, Waiting,Run, Drag, Thrown,Standup, Truck, Dead
-    }
+
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(DummyManager))]
     public class DummyManagerEditor : Editor
     {
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -92,18 +88,8 @@ namespace TKRunner
 
         private void Awake()
         {
-            if(GameManager.Instance.data.currentInst == null)
-            {
-
-                follower.follow = false;
-                follower.enabled = false;
-                return;
-            }
-            else
-            {
-                transform.parent = GameManager.Instance.data.currentInst.transform;
-            }
-
+            follower.follow = false;
+            follower.enabled = false;
         }
         private void OnEnable()
         {
@@ -166,7 +152,7 @@ namespace TKRunner
             Vector3 targetPos = _CurrentTarget.position + point;
             targetPos.y = 0;
             Vector3 pointingVector = targetPos - transform.position;
-            lookPos.y = GameManager.Instance.data.Player.transform.position.y;
+            lookPos.y = GameManager.Instance._data.Player.transform.position.y;
             while (pointingVector.magnitude >= 0.1f)
             {
                 lookPos = _CurrentTarget.position;
@@ -224,7 +210,7 @@ namespace TKRunner
         {
             GameManager.Instance.dummyController.AddDummy(this);
             gameObject.SetActive(true);
-            follower.spline = GameManager.Instance.data.currentInst.levelSpline;
+            follower.spline = GameManager.Instance._data.currentInst.levelSpline;
             follower.follow = false;
             follower.enabled = true;
             follower.motion.offset = Vector2.zero;
@@ -238,6 +224,7 @@ namespace TKRunner
         {
             if (CurrentState == DummyStates.Dead) return;
             SetVulnerable();
+            transform.parent = GameManager.Instance._data.currentInst.transform;
             switch (mode)
             {
                 case ActivatorModes.Default:
@@ -248,7 +235,7 @@ namespace TKRunner
                     break;
                 case ActivatorModes.Hunter:
                     rb.constraints = RigidbodyConstraints.FreezeAll;
-                    transform.parent = GameManager.Instance.data.currentInst.gameObject.transform;
+                    transform.parent = GameManager.Instance._data.currentInst.gameObject.transform;
                     break;
             }
 
@@ -259,7 +246,7 @@ namespace TKRunner
         {
             mAnim.Play(AnimNames.LookAround,0,UnityEngine.Random.Range(0f,1f));
             await Task.Delay((int)(_settings.WaitAfterSpawn * 1000));
-            InitActive(GameManager.Instance.data.currentInst.levelSpline);
+            InitActive(GameManager.Instance._data.currentInst.levelSpline);
 
         }
         public async void ActivateDefault()
@@ -267,9 +254,8 @@ namespace TKRunner
             await Task.Delay((int)(_settings.WaitAfterSpawn*1000));
             if (disableToken.IsCancellationRequested == true) return;
             rb.constraints = RigidbodyConstraints.None;
-            transform.parent = GameManager.Instance.data.currentInst.gameObject.transform;
-            base.InitActive(GameManager.Instance.data.currentInst.levelSpline);
-            _CurrentTarget = GameManager.Instance.data.Player.transform;
+            base.InitActive(GameManager.Instance._data.currentInst.levelSpline);
+            _CurrentTarget = GameManager.Instance._data.Player.transform;
 
             SetFollowSpeed(_settings.StartSpeed);
             SetFollowerDetection();
@@ -290,7 +276,6 @@ namespace TKRunner
             await Task.Delay((int)(_settings.WaitAfterSpawn * 1000));
             if (disableToken.IsCancellationRequested == true) return;
             StartFromWaiting();
-            transform.parent = GameManager.Instance.data.currentInst.gameObject.transform;
         }
 
 
@@ -312,8 +297,8 @@ namespace TKRunner
             CurrentState = DummyStates.Waiting;
             follower.follow = false;
             follower.enabled = false;
-            transform.parent = GameManager.Instance.data.currentInst.gameObject.transform;
-            _CurrentTarget = GameManager.Instance.data.Player.transform;
+            transform.parent = GameManager.Instance._data.currentInst.gameObject.transform;
+            _CurrentTarget = GameManager.Instance._data.Player.transform;
             SetFollowSpeed(0);
             mAnim.enabled = true;
             mAnim.Play(AnimNames.DummyWait,0,UnityEngine.Random.Range(0f,0.6f));
@@ -324,20 +309,21 @@ namespace TKRunner
         public async void StartFromWaiting()
         {
             await Task.Delay((int)(1000*_settings.WaitAfterSpawn));
-            if (CurrentState == DummyStates.Dead) return;
-            _CurrentTarget = GameManager.Instance.data.Player.transform;
+            if (!this || CurrentState == DummyStates.Dead) return;
+
+            transform.parent = GameManager.Instance._data.currentInst.transform;
+            _CurrentTarget = GameManager.Instance._data.Player.transform;
             CurrentState = DummyStates.Run;
             mAnim.Play(AnimNames.DummyRun);
             freeMoving = StartCoroutine(FreeMovement());
             if (detecting != null) StopCoroutine(detecting);
             detecting = StartCoroutine(PlayerDetector());
             OnAttackDistance = OnFreePlayerApproached;
-
         }
 
         private IEnumerator LookAtPlayer()
         {
-            Transform player = GameManager.Instance.data.Player.transform;
+            Transform player = GameManager.Instance._data.Player.transform;
             follower.motion.applyRotation = false;
             while (player != null)
             {
@@ -352,7 +338,7 @@ namespace TKRunner
             rb.constraints = RigidbodyConstraints.None;
             rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             follower.follow = false;
-            mainSpeed = _settings.StartSpeed * GameManager.Instance.data.currentInst.Data.moveData.GlobalSpeedMod;
+            mainSpeed = _settings.StartSpeed * GameManager.Instance._data.currentInst.Data.moveData.GlobalSpeedMod;
             while (true)
             {
                 if (rb == null)
@@ -374,7 +360,7 @@ namespace TKRunner
 
         private void SetFollowSpeed(float speed)
         {
-            mainSpeed = speed * GameManager.Instance.data.currentInst.Data.moveData.GlobalSpeedMod ;
+            mainSpeed = speed * GameManager.Instance._data.currentInst.Data.moveData.GlobalSpeedMod ;
             follower.followSpeed = mainSpeed;
         }
 
@@ -382,7 +368,7 @@ namespace TKRunner
         {
             GameManager.Instance.dummyController.AddDummy(this);
             base.InitActive(spline);
-            _CurrentTarget = GameManager.Instance.data.Player.transform;
+            _CurrentTarget = GameManager.Instance._data.Player.transform;
 
             SetFollowSpeed(_settings.StartSpeed );
             SetFollowerDetection();
@@ -471,7 +457,7 @@ namespace TKRunner
                 capColl.enabled = true;
                 capColl.isTrigger = false;
                 await SpeedChangingDirect(2.5f,
-                    _settings.StartSpeed * GameManager.Instance.data.currentInst.Data.moveData.GlobalSpeedMod,
+                    _settings.StartSpeed * GameManager.Instance._data.currentInst.Data.moveData.GlobalSpeedMod,
                      jumpToken.Token);
                 if(jumpToken.Token.IsCancellationRequested == false)
                     SetFollowSpeed(_settings.StartSpeed);
@@ -514,9 +500,9 @@ namespace TKRunner
             while (detect)
             {
                 SplineSample result = new SplineSample();
-                follower.Project(GameManager.Instance.data.Player.transform.position, result);
+                follower.Project(GameManager.Instance._data.Player.transform.position, result);
                 double distance = (result.percent - follower.result.percent) 
-                    * GameManager.Instance.data.currentInst.TrackUnitLength*100;
+                    * GameManager.Instance._data.currentInst.TrackUnitLength*100;
                 distanceToTarget = _CurrentTarget.position - transform.position;
              
                 float dirDist = (distanceToTarget).magnitude;
@@ -525,7 +511,7 @@ namespace TKRunner
                 {
                     OnSlowDownDistance?.Invoke();
                 }
-                if (distance <= _settings.ApproachDistance)
+                if (distance <= _settings.ApproachDistance || distance <= 0.5f) // min == 0.5f
                 {
                     if (!approachedCalled) { OnPlayerApproached?.Invoke() ;  approachedCalled = true; }
                     if ( dirDist <= _settings.JumpAttackDistance)
@@ -596,7 +582,7 @@ namespace TKRunner
         private IEnumerator SlowingDown()
         {
             float startSpeed = follower.followSpeed;
-            follower.followSpeed = GameManager.Instance.data.Player.currentSpeed;
+            follower.followSpeed = GameManager.Instance._data.Player.currentSpeed;
             yield return new WaitForSeconds(_settings.SlowDownTime);
             follower.followSpeed = startSpeed;
             OnPlayerApproached = OnFollowerPlayerApproached;
@@ -618,13 +604,13 @@ namespace TKRunner
             while (true)
             {
                 SplineSample result = new SplineSample();
-                follower.Project(GameManager.Instance.data.Player.transform.position, result);
+                follower.Project(GameManager.Instance._data.Player.transform.position, result);
 
-                Vector3 dist = GameManager.Instance.data.Player.transform.position - transform.position;
+                Vector3 dist = GameManager.Instance._data.Player.transform.position - transform.position;
 
                 float projX = Vector3.Dot(dist, follower.result.right);
                 float projZ = Vector3.Dot(dist, follower.result.forward);
-                float v = (follower.followSpeed - GameManager.Instance.data.Player.currentSpeed);
+                float v = (follower.followSpeed - GameManager.Instance._data.Player.currentSpeed);
                 if(v < 0)
                 {
                     follower.followSpeed += Mathf.Abs(v);
@@ -640,12 +626,12 @@ namespace TKRunner
                 if(elapsed <= turnTime)
                 {
                     transform.rotation = Quaternion.Lerp(startRot, 
-                        Quaternion.LookRotation(GameManager.Instance.data.Player.transform.position - transform.position,Vector3.up), elapsed/turnTime);
+                        Quaternion.LookRotation(GameManager.Instance._data.Player.transform.position - transform.position,Vector3.up), elapsed/turnTime);
                     elapsed += Time.deltaTime;
                 }
                 else
                 {
-                    transform.LookAt(GameManager.Instance.data.Player.transform);
+                    transform.LookAt(GameManager.Instance._data.Player.transform);
                 }
                 yield return null;
             }
@@ -657,7 +643,7 @@ namespace TKRunner
             if (turning != null) StopCoroutine(turning);
             turning = StartCoroutine(Turning(turnTime, follower.result.forward, ()=> { ApplyFollowerRotation(true); }));
         }
-        private IEnumerator Turning(float time, Vector3 dir, Action onEnd)
+        private IEnumerator Turning(float time, Vector3 dir, Action onEnd = null)
         {
             float elapsed = 0f;
             Vector3 start = transform.forward;
@@ -668,10 +654,12 @@ namespace TKRunner
                 elapsed += Time.deltaTime;
                 yield return null;
             }
-            onEnd?.Invoke();
+            //onEnd?.Invoke();
+            ApplyFollowerRotation(true);
         }
         private void ApplyFollowerRotation(bool apply)
         {
+            Debug.Log("applied follower rot");
             follower.motion.applyRotation = apply;
         }
 
@@ -685,9 +673,9 @@ namespace TKRunner
             jumpToken = new CancellationTokenSource();
             
             mAnim.Play(AnimNames.DummyJump);
-            Vector3 pushVector = (GameManager.Instance.data.Player.transform.position 
+            Vector3 pushVector = (GameManager.Instance._data.Player.transform.position 
                 - transform.position 
-                + GameManager.Instance.data.Player.transform.forward).normalized
+                + GameManager.Instance._data.Player.transform.forward).normalized
                 + transform.up * _settings.UpwardPushModifier;
 
             OnPlayerContact = OnPlayerAttackContact;
@@ -708,7 +696,7 @@ namespace TKRunner
         }
         private void OnPlayerAttackContact()
         {
-            if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit,3, GameManager.Instance.data.PlayerMask))
+            if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit,3, GameManager.Instance._data.PlayerMask))
             {
                 IDamagable target = hit.collider.gameObject.GetComponent<IDamagable>();
                 if(target != null)
@@ -765,7 +753,7 @@ namespace TKRunner
             if (ragdollManager == null) { Debug.Log("<color=red>ragdoll manager is null</color>");return; }
             ragdollManager.SetActive();
             if(doGroundCheck)
-                ragdollManager.StartGroundCheck(GameManager.Instance.data.currentInst.Data.effects.freeFallTime);
+                ragdollManager.StartGroundCheck(GameManager.Instance._data.currentInst.Data.effects.freeFallTime);
             if(mAnim!=null)
                 mAnim.enabled = false;
         }
@@ -826,7 +814,7 @@ namespace TKRunner
         public bool Slash(Plane plane)
         {
             //if (IsVulnarable == false) return false;
-            GameManager.Instance.sounds.PlaySingleTime(Sounds.AxeHit);
+            GameManager.Instance._sounds.PlaySingleTime(Sounds.AxeHit);
             SetDead();
             StartCoroutine(Slicing(plane));
             IsVulnarable = false;
@@ -871,7 +859,7 @@ namespace TKRunner
                 Die();
                 rb.velocity = force;
                 ragdollManager.PushDoll(force, true);
-                GameManager.Instance.sounds.PlaySingleTime(Sounds.BatHit);
+                GameManager.Instance._sounds.PlaySingleTime(Sounds.BatHit);
                
             }
             return true;

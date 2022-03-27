@@ -13,7 +13,7 @@ namespace TKRunner
         [Space(5)]
         public Vector3 _AuraOffset = new Vector3();
         [Space(5)]
-        [HideInInspector] public float _planeHeight = 8f;
+        [HideInInspector] public float _planeHeight = 3f;
         [HideInInspector] public BaseObstacle _obstacle;
         public virtual void Init(BaseObstacle obstacle)
         {

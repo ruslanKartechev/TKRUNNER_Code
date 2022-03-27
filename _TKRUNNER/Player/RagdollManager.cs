@@ -43,7 +43,7 @@ namespace TKRunner
                 }
             }
             ControllRB.isKinematic = false;
-            ControllRB.transform.parent = GameManager.Instance.data.currentInst.transform;
+            ControllRB.transform.parent = GameManager.Instance._data.currentInst.transform;
         }
         protected virtual void EnableColliders()
         {

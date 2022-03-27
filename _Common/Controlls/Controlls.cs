@@ -9,7 +9,7 @@ namespace Commongame
 
         public void Init()
         {
-            GameManager.Instance.eventManager.LevelStarted.AddListener(ResumeInput);
+            GameManager.Instance._events.LevelStarted.AddListener(ResumeInput);
             StopInput();
         }
 
@@ -35,21 +35,21 @@ namespace Commongame
                 {
                     lastXpos = currentXpos;
                     
-                    GameManager.Instance.eventManager.Input.Invoke(0);
+                    GameManager.Instance._events.Input.Invoke(0);
                 }
                 if (Input.GetMouseButton(0))
                 {
                     currentXpos = MouseScreenPosition().x;
                     if((currentXpos - lastXpos) > 0)
                     {
-                        GameManager.Instance.eventManager.Input.Invoke(1);
+                        GameManager.Instance._events.Input.Invoke(1);
                     }
                     else if((currentXpos - lastXpos) < 0)
                     {
-                        GameManager.Instance.eventManager.Input.Invoke(-1);
+                        GameManager.Instance._events.Input.Invoke(-1);
                     } else if ((currentXpos - lastXpos) == 0)
                     {
-                        GameManager.Instance.eventManager.Input.Invoke(0);
+                        GameManager.Instance._events.Input.Invoke(0);
                     }
                 }
 
@@ -61,9 +61,9 @@ namespace Commongame
         {
             float x = MouseScreenPosition().x - Screen.width/2;
             if (x >= 0)
-                GameManager.Instance.eventManager.Input.Invoke(1);
+                GameManager.Instance._events.Input.Invoke(1);
             else
-                GameManager.Instance.eventManager.Input.Invoke(-1);
+                GameManager.Instance._events.Input.Invoke(-1);
 
         }
 

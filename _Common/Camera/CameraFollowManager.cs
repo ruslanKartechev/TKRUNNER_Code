@@ -57,11 +57,14 @@ namespace Commongame.Cam
                 elapsed += Time.deltaTime;
                 yield return null;
             }
-            transform.position = target.position;
+            if (target)
+            {
+                transform.position = target.position;
 #if UNITY_EDITOR
-            _posTracking = StartCoroutine(TrackPosition(target));
-            
+                _posTracking = StartCoroutine(TrackPosition(target));
 #endif
+            }
+
         }
 
         private IEnumerator RotationSetting(Transform target, float time)
@@ -74,10 +77,14 @@ namespace Commongame.Cam
                 elapsed += Time.deltaTime;
                 yield return null;
             }
-            transform.rotation = target.rotation;
+            if (target)
+            {
+                transform.rotation = target.rotation;
 #if UNITY_EDITOR
-            _rotTracking = StartCoroutine(TrackRotation(target));
+                _rotTracking = StartCoroutine(TrackRotation(target));
 #endif
+            }
+
         }
 
 

@@ -16,7 +16,7 @@ namespace TKRunner
 
         private void Start()
         {
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnLevelLoaded);   
+            GameManager.Instance._events.LevelLoaded.AddListener(OnLevelLoaded);   
         }
         private void OnLevelLoaded()
         {

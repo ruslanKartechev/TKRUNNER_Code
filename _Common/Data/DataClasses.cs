@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Dreamteck.Splines;
-using TKRunner;
-namespace Commongame.Data
+namespace TKRunner
 {
 
     [System.Serializable]
@@ -35,7 +33,13 @@ namespace Commongame.Data
     [System.Serializable]
     public class DraggingData
     {
-        public float DragMaxSpeed = 5f;
+        public float DragSensitivity = 5f;
+        [Space(10)]
+        public bool UseSensitivityChange = true;
+        public float SensitivityChangeTime = 1f;
+        [Space(10)]
+        public bool UseDragPlaneRaising = true;
+        public float DragPlaneRaiseTime = 0.7f;
     }
 
 
@@ -45,11 +49,7 @@ namespace Commongame.Data
         public float GlobalSpeedMod = 1 ;
     }
 
-    [System.Serializable]
-    public class LevelData
-    {
-        public GameObject lvlPF;
-    }
+
 
    [System.Serializable]
    public class CylinderMeshData

@@ -34,17 +34,17 @@ namespace TKRunner
             _spawner = GetComponentInChildren<ISpawner>();
             
             if (_spawner == null) {Debug.Log("ISpawner not found"); return; }
-            GameManager.Instance.eventManager.LevelStarted.AddListener(Init);
-            GameManager.Instance.eventManager.LevelEndreached.AddListener(Stop);
-            GameManager.Instance.eventManager.PlayerLose.AddListener(Stop);
-            GameManager.Instance.eventManager.WeaponEquipped.AddListener(OnWeaponEquipped);
+            GameManager.Instance._events.LevelStarted.AddListener(Init);
+            GameManager.Instance._events.LevelEndreached.AddListener(Stop);
+            GameManager.Instance._events.PlayerLose.AddListener(Stop);
+            GameManager.Instance._events.WeaponEquipped.AddListener(OnWeaponEquipped);
         }
 
         public void Init()
         {
             if (_manager == null) Debug.Log("procedural spawner manager not found");
             _manager.Init(_Settings,this, _spawner);
-            _positioner?.Init(GameManager.Instance.data.currentInst.levelSpline);
+            _positioner?.Init(GameManager.Instance._data.currentInst.levelSpline);
 
         }
 
@@ -54,7 +54,7 @@ namespace TKRunner
         }
         public void OnWeaponEquipped()
         {
-            WeaponType type = GameManager.Instance.data.currentWeapon;
+            WeaponType type = GameManager.Instance._data.currentWeapon;
             if (type != WeaponType.Default)
                 _manager.SpawnByType(type);
             else

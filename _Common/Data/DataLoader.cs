@@ -18,7 +18,7 @@ namespace Commongame.Data {
             //yield return new WaitForSeconds(1f);
             //   Debug.Log("Finished Loading");
             yield return null;
-            GameManager.Instance.eventManager.DataLoaded.Invoke();
+            GameManager.Instance._events.DataLoaded.Invoke();
         }
     }
 }

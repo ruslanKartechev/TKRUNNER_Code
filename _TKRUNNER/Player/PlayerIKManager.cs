@@ -22,7 +22,7 @@ namespace TKRunner
         public void StartHandIK()
         {
             if (weightChanging != null) StopCoroutine(weightChanging);
-            weightChanging = StartCoroutine(WeightChange(1, 0.3f));
+            weightChanging = StartCoroutine(WeightChange(1, 0.15f));
         }
         public void StopHandIK()
         {
@@ -30,7 +30,7 @@ namespace TKRunner
                 return;
             movable.transform.position = transform.position - transform.forward + 1.5f * transform.up;
             if (weightChanging != null) StopCoroutine(weightChanging);
-            weightChanging = StartCoroutine(WeightChange(0,0.3f));
+            weightChanging = StartCoroutine(WeightChange(0,0.15f));
         }
         public void SetWeight(float val)
         {

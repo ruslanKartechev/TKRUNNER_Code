@@ -10,7 +10,7 @@ namespace TKRunner
         private SplineComputer _spline;
         public void Init()
         {
-            _spline = GameManager.Instance.data.currentInst.playerSpline;
+            _spline = GameManager.Instance._data.currentInst.playerSpline;
             if (_spline == null) Debug.Log("Player spline was not found");
 
         }
@@ -21,7 +21,7 @@ namespace TKRunner
         }
         public double GetPlayerPercent()
         {
-            return GameManager.Instance.data.Player.currentPercent;
+            return GameManager.Instance._data.Player.currentPercent;
         }
     }
 }

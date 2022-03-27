@@ -14,7 +14,7 @@ namespace TKRunner
         private void Start()
         {
             _manager.HideHand();
-            if (GameManager.Instance.data.EditorUIMode)
+            if (GameManager.Instance._data.EditorUIMode)
             {
                 StartInputCheck();
             }

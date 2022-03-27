@@ -11,7 +11,7 @@ namespace Commongame.UI
         public void Init()
         {
             panelUI.Init(this);
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnNewLevel);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnNewLevel);
             mPanel = panelUI;
         }
         public void OnNewLevel()
@@ -31,7 +31,7 @@ namespace Commongame.UI
         public override void OnMainButtonClick()
         {
             HidePanel(false);
-            GameManager.Instance.eventManager.NextLevelCalled.Invoke();
+            GameManager.Instance._events.NextLevelCalled.Invoke();
         }
 
         public void ShowRetryPanel()

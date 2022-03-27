@@ -22,9 +22,10 @@ namespace Commongame.UI
             startPanel.HidePanel(true);
             levelEndPanel.HidePanel(true);
 
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(ShowStart);
-            GameManager.Instance.eventManager.LevelEndreached.AddListener(OnLevelFinishReached);
-            GameManager.Instance.eventManager.PlayerLose.AddListener(OnPlayerLoose);
+            GameManager.Instance._events.LevelLoaded.AddListener(ShowStart);
+            GameManager.Instance._events.PlayerWin.AddListener(OnPlayerWin);
+            GameManager.Instance._events.PlayerLose.AddListener(OnPlayerLoose);
+            
         }
         public void ShowStart()
         {
@@ -35,7 +36,7 @@ namespace Commongame.UI
         {
             levelEndPanel.ShowRetryPanel();
         }
-        public void OnLevelFinishReached()
+        public void OnPlayerWin()
         {
             levelEndPanel.ShowPanel();
         }

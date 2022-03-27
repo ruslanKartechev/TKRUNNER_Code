@@ -121,9 +121,9 @@ namespace TKRunner
         {
             onEndAction = onAnimEnd;
             mAnim.Play(AnimNames.MagicThrow, BaseAnimLayer, 0);
-            GameManager.Instance.data.currentWeapon = WeaponType.Default;
+            GameManager.Instance._data.currentWeapon = WeaponType.Default;
             InitRotationCountdown();
-            GameManager.Instance.eventManager.WeaponEquipped.Invoke();
+            GameManager.Instance._events.WeaponEquipped.Invoke();
         }
         public void OnDragBroken()
         {

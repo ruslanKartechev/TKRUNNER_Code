@@ -55,6 +55,7 @@ namespace TKRunner
 
         public async void Spawn(GameObject prefab, float delay)
         {
+            if (_SpawnCount <= 0) return;  
             _effects.FadeIn();
             if (didPreInst == true && preInst.Count >= _SpawnCount)
             {
@@ -73,7 +74,7 @@ namespace TKRunner
                 for (int i = 0; i < _SpawnCount; i++)
                 {
                     GameObject go = Instantiate(prefab);
-                    go.transform.parent = GameManager.Instance.data.currentInst.transform;
+                    go.transform.parent = GameManager.Instance._data.currentInst.transform;
                     ISpawnable spawnable = go.GetComponent<ISpawnable>();
                     spawnable.SetSettings(DummySettings);
                     spawnable.OnSpawn();

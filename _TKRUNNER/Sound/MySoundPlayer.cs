@@ -1,26 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Commongame.Data;
-using Commongame;
-public class MySoundPlayer : MonoBehaviour, ISoundEffect
+using Commongame.Sound;
+
+namespace Commongame
 {
-    public SoundNames _sound;  
-  //  [SerializeField] private string mySoundName;
-
-    public void PlayEffectOnce()
+    public class MySoundPlayer : MonoBehaviour, ISoundEffect
     {
+        public SoundNames _sound;
+        //  [SerializeField] private string mySoundName;
 
-        GameManager.Instance.sounds.PlaySingleTime(_sound.ToString());
-    }
+        public void PlayEffectOnce()
+        {
 
-    public void StartEffect()
-    {
-        GameManager.Instance.sounds.StartSoundEffect(_sound.ToString());
-    }
+            GameManager.Instance._sounds.PlaySingleTime(_sound.ToString());
+        }
 
-    public void StopEffect()
-    {
-        GameManager.Instance.sounds.StopLoopedEffect(_sound.ToString());
+        public void StartEffect()
+        {
+            GameManager.Instance._sounds.StartSoundEffect(_sound.ToString());
+        }
+
+        public void StopEffect()
+        {
+            GameManager.Instance._sounds.StopLoopedEffect(_sound.ToString());
+        }
     }
 }

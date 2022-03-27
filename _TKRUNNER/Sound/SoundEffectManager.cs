@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Commongame.Data;
+
 namespace Commongame.Sound
 {
-
     public class SoundEffectManager : MonoBehaviour
     {
         [Header("Sound Data")]

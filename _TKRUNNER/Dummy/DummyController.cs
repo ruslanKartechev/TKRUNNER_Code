@@ -18,12 +18,12 @@ namespace TKRunner
         private void Start()
         {
 
-            GameManager.Instance.eventManager.PlayerLose.AddListener(OnPlayerLose);
-            GameManager.Instance.eventManager.PlayerWin.AddListener(OnPlayerWin);
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnNewLevel);
+            GameManager.Instance._events.PlayerLose.AddListener(DummiesWin);
+            GameManager.Instance._events.PlayerWin.AddListener(DummiesLoose);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnNewLevel);
         }
 
-        private void OnPlayerWin()
+        public void DummiesLoose()
         {
             for (int i = 0; i < spawnedDummies.Count; i++)
             {
@@ -33,7 +33,7 @@ namespace TKRunner
                 }
             }
         }
-        private void OnPlayerLose()  // Remove ?
+        public void DummiesWin()
         {
             for (int i = 0; i < spawnedDummies.Count; i++)
             {
@@ -43,11 +43,10 @@ namespace TKRunner
                 }
             }
 
-            triggerSpawner.SetSpline(GameManager.Instance.data.currentInst.levelSpline);
+            triggerSpawner.SetSpline(GameManager.Instance._data.currentInst.levelSpline);
             triggerSpawner.SpawnOnPlayerDeath();
-
         }
-
+        
 
         public void AddDummy(DummyManager dummy)
         {

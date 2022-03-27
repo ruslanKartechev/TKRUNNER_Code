@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Commongame.Data;
+using Commongame.Sound;
 using Commongame;
 using System;
 namespace TKRunner
@@ -61,7 +61,7 @@ namespace TKRunner
         {
             DragTarget.BreakConnection();
             _breakble?.Break();
-            GameManager.Instance.sounds.PlaySingleTime(breakSound.ToString());
+            GameManager.Instance._sounds.PlaySingleTime(breakSound.ToString());
             gameObject.SetActive(false);
         }
         public virtual void OnDragStart()
@@ -81,7 +81,7 @@ namespace TKRunner
         {
             IWeaponTarget target = hit.gameObject.GetComponent<IWeaponTarget>();
             if (target == null) { Debug.Log("target has no IWeaponTarget, abort"); return; }
-            Vector3 vel = GameManager.Instance.data.CurrentDragVelocity;
+            Vector3 vel = GameManager.Instance._data.CurrentDragVelocity;
             vel.y = 0;
             //Debug.Log("<color=blue> Obstacle OnEnemyContanctDrag called  </color>");
             //Debug.Log("<color=blue> +Speed = " + vel.magnitude + 
@@ -89,7 +89,7 @@ namespace TKRunner
             //    +  " </color>");
             target.KillAndPush((vel) * PushForceMultiplyer);
             AddHitCount();
-            if (vel.magnitude >= GameManager.Instance.data.currentInst.Data._collisionData.BoxCollisionForceThreshold)
+            if (vel.magnitude >= GameManager.Instance._data.currentInst.Data._collisionData.BoxCollisionForceThreshold)
             {
                
             }
@@ -104,7 +104,7 @@ namespace TKRunner
         private void OnPlayerContact()
         {
             //Debug.Log("<color=blue> Obstacle OnPlayerContact called  </color>");
-            GameManager.Instance.data.Player.TakeHit();
+            GameManager.Instance._data.Player.TakeHit();
             Break();
 
         }

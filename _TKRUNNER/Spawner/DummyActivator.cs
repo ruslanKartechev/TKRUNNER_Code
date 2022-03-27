@@ -16,7 +16,7 @@ namespace TKRunner
 
         private void Awake()
         {
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnNewLevel);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnNewLevel);
         }
         private void OnNewLevel()
         {

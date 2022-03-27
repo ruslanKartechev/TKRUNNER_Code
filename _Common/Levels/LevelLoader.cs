@@ -25,11 +25,11 @@ namespace Commongame
         {
             GameObject level = Instantiate(data.lvlPF, levelPoint);
             LevelInstance currentData = level.GetComponent<LevelInstance>();
-            GameManager.Instance.data.currentInst = currentData;
+            GameManager.Instance._data.currentInst = currentData;
             yield return null;
             // GameManager.Instance.playerSpawner.SpawnPlayer();
            // yield return null;
-            GameManager.Instance.eventManager.LevelLoaded.Invoke();
+            GameManager.Instance._events.LevelLoaded.Invoke();
 
         }
 

@@ -12,7 +12,7 @@ namespace TKRunner
         public void SpawnTruck()
         {
             truck.gameObject.SetActive(true);
-            truck.Init(GameManager.Instance.data.Player);
+            truck.Init(GameManager.Instance._data.Player);
         }
 
 

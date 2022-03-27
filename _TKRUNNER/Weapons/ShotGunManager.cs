@@ -60,10 +60,10 @@ namespace TKRunner {
             b.transform.rotation = shootingPoint.rotation;
   
             AddHitsCount();
-            b.InitBullets(GameManager.Instance.data.currentInst.Data._weaponsData.BulletsSpeed);
+            b.InitBullets(GameManager.Instance._data.currentInst.Data._weaponsData.BulletsSpeed);
 
             if (ShakeOnFire)
-                GameManager.Instance.eventManager.Impact.Invoke();
+                GameManager.Instance._events.Impact.Invoke();
      
         }
     }

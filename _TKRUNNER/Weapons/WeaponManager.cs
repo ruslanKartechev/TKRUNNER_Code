@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Commongame.Data;
+using Commongame.Sound;
 using Commongame;
 using System;
 using System.Threading;
@@ -66,8 +66,8 @@ namespace TKRunner
             _weapon.Activate();
             breakDrag = Break;
             rotationHandler = StartCoroutine(RotationHandler());
-            GameManager.Instance.data.currentWeapon = _type;
-            GameManager.Instance.eventManager.WeaponEquipped.Invoke();
+            GameManager.Instance._data.currentWeapon = _type;
+            GameManager.Instance._events.WeaponEquipped.Invoke();
         }
         public void DragEnd()
         {
@@ -79,13 +79,13 @@ namespace TKRunner
             breakDrag = null;
             if(rotationHandler != null)
                 StopCoroutine(rotationHandler);
-            GameManager.Instance.data.currentWeapon = WeaponType.Default;
-            GameManager.Instance.eventManager.WeaponEquipped.Invoke();
+            GameManager.Instance._data.currentWeapon = WeaponType.Default;
+            GameManager.Instance._events.WeaponEquipped.Invoke();
         }
 
         private void BreakWeapon()
         {
-            GameManager.Instance.sounds.PlaySingleTime(Sounds.WeaponBreak);
+            GameManager.Instance._sounds.PlaySingleTime(Sounds.WeaponBreak);
             BreakConnection();
             ModelCollider.gameObject.SetActive(false);
             _breakble?.Break();
@@ -132,9 +132,9 @@ namespace TKRunner
             while (true)
             {
                 if(_splineHandler.GetTargetPercent(transform.position) >= _splineHandler.GetPlayerPercent())
-                    transform.rotation = Quaternion.LookRotation(GameManager.Instance.data.Player.gameObject.transform.forward);
+                    transform.rotation = Quaternion.LookRotation(GameManager.Instance._data.Player.gameObject.transform.forward);
                 else
-                    transform.rotation = Quaternion.LookRotation( -GameManager.Instance.data.Player.gameObject.transform.forward );
+                    transform.rotation = Quaternion.LookRotation( -GameManager.Instance._data.Player.gameObject.transform.forward );
                 yield return null;
             }
         }

@@ -15,7 +15,7 @@ namespace Commongame.UI
                 panelUI = FindObjectOfType<StartPanelUI>();
             mPanel = panelUI;
             panelUI.Init(this);
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnNewLevel);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnNewLevel);
         }
         public void OnNewLevel()
         {
@@ -26,7 +26,7 @@ namespace Commongame.UI
         {
           //  GameManager.Instance.eventManager.ClickableHit.Invoke();
             HidePanel(true);
-            GameManager.Instance.eventManager.LevelStarted.Invoke();   
+            GameManager.Instance._events.LevelStarted.Invoke();   
         }
         public override void OnPanelHidden()
         {

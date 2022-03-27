@@ -16,7 +16,7 @@ namespace TKRunner
         public override void Activate()
         {
             base.Activate();
-            castMask = GameManager.Instance.data.currentInst.Data._weaponsData.HammerCastMask;
+            castMask = GameManager.Instance._data.currentInst.Data._weaponsData.HammerCastMask;
         }
 
         public void OnAnimStrikeEvent()
@@ -28,12 +28,12 @@ namespace TKRunner
         private void Strike()
         {
             PlayHitSound();
-            GameManager.Instance.eventManager.Impact.Invoke();
+            GameManager.Instance._events.Impact.Invoke();
             SetParticlesPos(HammerHead.position);
             ShowParticles();
 
             Collider[] colls = Physics.OverlapSphere(HammerHead.position, 
-                GameManager.Instance.data.currentInst.Data._weaponsData.HammerHitRadius, castMask);
+                GameManager.Instance._data.currentInst.Data._weaponsData.HammerHitRadius, castMask);
 
             if (Physics.Raycast(HammerHead.position, -HammerHead.up, out RaycastHit hit, 10f))
             {
@@ -48,7 +48,7 @@ namespace TKRunner
             {
                 coll.GetComponent<IDestroyable>()?.Destroy();
                 coll.gameObject.GetComponent<IWeaponTarget>()?.PushAway(HammerHead.position, 
-                    GameManager.Instance.data.currentInst.Data._weaponsData.HammerPushForce);
+                    GameManager.Instance._data.currentInst.Data._weaponsData.HammerPushForce);
 
             }
             AddHitsCount();

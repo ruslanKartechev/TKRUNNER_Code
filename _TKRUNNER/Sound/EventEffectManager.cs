@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Commongame.Data;
 using Commongame;
-namespace Commongame.Sound {
+using Commongame.Sound;
+namespace TKRunner {
     public class EventEffectManager : MonoBehaviour
     {
 
@@ -16,21 +16,21 @@ namespace Commongame.Sound {
 
         private void Start()
         {
-            GameManager.Instance.eventManager.LevelStarted.AddListener(OnLevelStart);
-            GameManager.Instance.eventManager.PlayerWin.AddListener(OnPlayerWin);
-            GameManager.Instance.eventManager.PlayerLose.AddListener(OnPlayerLoose);
-            GameManager.Instance.eventManager.LevelEndreached.AddListener(OnLevelEnd);
+            GameManager.Instance._events.LevelStarted.AddListener(OnLevelStart);
+            GameManager.Instance._events.PlayerWin.AddListener(OnPlayerWin);
+            GameManager.Instance._events.PlayerLose.AddListener(OnPlayerLoose);
+            GameManager.Instance._events.LevelEndreached.AddListener(OnLevelEnd);
         }
 
 
         private void OnLevelStart()  
         {
-            GameManager.Instance.sounds.StopLoopedEffect(levelEnd.ToString());
-            GameManager.Instance.sounds.PlayMusic();
+            GameManager.Instance._sounds.StopLoopedEffect(levelEnd.ToString());
+            GameManager.Instance._sounds.PlayMusic();
         }
         private void OnLevelEnd()
         {
-            GameManager.Instance.sounds.StopMusic();
+            GameManager.Instance._sounds.StopMusic();
         }
         private void OnPlayerWin()
         {
@@ -38,20 +38,20 @@ namespace Commongame.Sound {
             //names.Add(win.ToString());
             //names.Add(levelEnd.ToString());
             //GameManager.Instance.sounds.PlaySequence(names);
-            GameManager.Instance.sounds.PlaySingleTime(win.ToString());
-            GameManager.Instance.sounds.StartSoundEffect(levelEnd.ToString());
+            GameManager.Instance._sounds.PlaySingleTime(win.ToString());
+            GameManager.Instance._sounds.StartSoundEffect(levelEnd.ToString());
         }
         private void OnPlayerLoose()
         {
-            GameManager.Instance.sounds.PlaySingleTime(loose.ToString());
+            GameManager.Instance._sounds.PlaySingleTime(loose.ToString());
         }
         private void InSourceVicinity(SoundNames sound, bool play)
         {
             Debug.Log("vicinity of: " + sound.ToString());
             if (play)
-                GameManager.Instance.sounds.StartSoundEffect(sound.ToString());
+                GameManager.Instance._sounds.StartSoundEffect(sound.ToString());
             else
-                GameManager.Instance.sounds.StopLoopedEffect(sound.ToString());
+                GameManager.Instance._sounds.StopLoopedEffect(sound.ToString());
         }
 
 

@@ -47,12 +47,12 @@ public class TutorialHand : MonoBehaviour
     private void Start()
     {
         _targetPosition = _handImage.transform.position;
-        GameManager.Instance.eventManager.LevelLoaded.AddListener(OnFirstLevelLoaded);
+        GameManager.Instance._events.LevelLoaded.AddListener(OnFirstLevelLoaded);
      //   GameManager.Instance.eventManager.ClickableHit.AddListener(OnButtonClick);
     }
     private void OnFirstLevelLoaded()
     {
-        GameManager.Instance.eventManager.LevelLoaded.RemoveListener(OnFirstLevelLoaded);
+        GameManager.Instance._events.LevelLoaded.RemoveListener(OnFirstLevelLoaded);
         currentMovement = StartCoroutine(UIPointerMovement());
     }
     private void OnToolInit()

@@ -21,10 +21,9 @@ namespace Commongame.Events
 
         public UnityEvent LevelEndreached = new UnityEvent();
 
+        
         public UnityEvent PlayerWin = new UnityEvent();
         public UnityEvent PlayerLose = new UnityEvent();
-
-        public UnityEvent LevelFinished = new UnityEvent();
 
         public UnityEvent NextLevelCalled = new UnityEvent();
 

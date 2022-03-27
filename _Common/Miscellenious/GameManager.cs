@@ -16,39 +16,31 @@ namespace Commongame
         public bool DoStartGame = true;
         [HideInInspector]  public LevelManager levelManager;
         [Header("General")]
-        public SoundEffectManager sounds;
-        public EventsManager eventManager;
-        public DataManager data;
+        public SoundEffectManager _sounds;
+        public EventsManager _events;
+        public DataManager _data;
         public DataLoader dataLoader;
-        public Controlls controlls;
+        public Controlls _controls;
         public GoClearer _clearer;
 
-        [HideInInspector] public GameUIController UIController;
+        [HideInInspector] public GameUIController _UI;
         
         [Header("Dummies")]
-        public DummySpawnerController dummySpawner;
         public DummyController dummyController;
         [Header("_")]
         public CameraController CameraController;
 
-
         private void Start()
         {
-
-            //levelManager._Loader.ClearLevel();
-
-            UIController = FindObjectOfType<GameUIController>();
+            _UI = FindObjectOfType<GameUIController>();
             levelManager = FindObjectOfType<LevelManager>();
 
-
-            controlls.Init();
-            UIController.Init();
-            dummySpawner.Init();
-            sounds.Init();
-          //  CameraController.Init();
-            GameManager.Instance.eventManager.DataLoaded.AddListener(OnDataLoaded);
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnLevelLoaded);
-            GameManager.Instance.eventManager.NextLevelCalled.AddListener(OnNextLevelCalled);
+            _controls.Init();
+            _UI.Init();
+            _sounds.Init();
+            GameManager.Instance._events.DataLoaded.AddListener(OnDataLoaded);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnLevelLoaded);
+            GameManager.Instance._events.NextLevelCalled.AddListener(OnNextLevelCalled);
             dataLoader.StartLoading();
         }
         public void OnDataLoaded()
@@ -61,7 +53,6 @@ namespace Commongame
 
         private void OnLevelLoaded()
         {
-           // GameManager.Instance.eventManager.LevelStarted.Invoke();
         }
         private void OnNextLevelCalled()
         {

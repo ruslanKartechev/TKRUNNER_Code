@@ -25,19 +25,25 @@ namespace TKRunner {
         private Transform prevTarget;
 
         private Coroutine _shaking;
-        private CinemachineBasicMultiChannelPerlin noise;
+        private CinemachineBasicMultiChannelPerlin cam_noise;
+        private Cinemachine3rdPersonFollow cam_follow;
+        private CinemachineComposer cam_aim;
+
+
         void Start()
         {
             if (virtualCamera == null)
                 virtualCamera = GetComponent<CinemachineVirtualCamera>();
  
-            noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            cam_noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            cam_follow = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+            cam_aim = virtualCamera.GetCinemachineComponent<CinemachineComposer>();
         }
 
 
         public void Shake()
         {
-            if (noise == null) return;
+            if (cam_noise == null) return;
             if (_shaking != null) StopCoroutine(_shaking);
             _shaking = StartCoroutine(Shaking(_shakingSettings));
             Vibration.VibratePop();
@@ -45,18 +51,31 @@ namespace TKRunner {
 
         private IEnumerator Shaking(CVCShakingSettings shakeData)
         {
-            noise.m_AmplitudeGain = shakeData.ShakeAmp;
-            noise.m_FrequencyGain = shakeData.ShakeFreq;
+            cam_noise.m_AmplitudeGain = shakeData.ShakeAmp;
+            cam_noise.m_FrequencyGain = shakeData.ShakeFreq;
             yield return new WaitForSeconds(shakeData.Duration);
-            noise.m_AmplitudeGain = shakeData.NormaAmp;
-            noise.m_FrequencyGain = shakeData.NormalFreq;
+            cam_noise.m_AmplitudeGain = shakeData.NormaAmp;
+            cam_noise.m_FrequencyGain = shakeData.NormalFreq;
+
+        }
+
+
+        public void TeleportToStart()
+        {
+            StopMachineFollow();
+            StopMachineLookAt();
+            Vector3 position = cam_follow.ShoulderOffset + GameManager.Instance._data.currentInst.followObj.position;
+            virtualCamera.transform.position = position;
+            virtualCamera.transform.rotation = Quaternion.LookRotation(GameManager.Instance._data.currentInst.lookObj.position);
+            ResetCinemachine();
+            //Quaternion rotation = Quaternion.LookRotation(position);
 
         }
 
         public void ResetCinemachine()
         {
-            virtualCamera.LookAt = GameManager.Instance.data.currentInst.lookObj;
-            virtualCamera.Follow = GameManager.Instance.data.currentInst.followObj;
+            virtualCamera.LookAt = GameManager.Instance._data.currentInst.lookObj;
+            virtualCamera.Follow = GameManager.Instance._data.currentInst.followObj;
 
         }
 
@@ -69,10 +88,6 @@ namespace TKRunner {
         public void StopMachineLookAt()
         {
             virtualCamera.LookAt = null;
-        }
-        public void ResetMachine()
-        {
-            virtualCamera.Follow = prevTarget;
         }
     }
 }

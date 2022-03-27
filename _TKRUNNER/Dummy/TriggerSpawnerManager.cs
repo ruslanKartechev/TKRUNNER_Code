@@ -27,11 +27,11 @@ namespace TKRunner
             spawned = new List<IPlayerHunter>(SpawnAmount);
             GameObject s = Instantiate(SpawnerPF);
             PortalSpawnerController spawner = s.GetComponent<PortalSpawnerController>();
-            double percent = targetSpline.Project(GameManager.Instance.data.Player.transform.position).percent;
+            double percent = targetSpline.Project(GameManager.Instance._data.Player.transform.position).percent;
             double percentDistance = PortalSpawnDistance / targetSpline.CalculateLength();
             Vector3 pos = targetSpline.EvaluatePosition(percent - percentDistance);
             s.transform.position = pos;
-            SetEndPositions(SpawnAmount,GameManager.Instance.data.Player.GeometryCenter);
+            SetEndPositions(SpawnAmount,GameManager.Instance._data.Player.GeometryCenter);
 
             spawner.SetActivationMode(ActivatorModes.Hunter);
             spawner.Init();
@@ -42,7 +42,7 @@ namespace TKRunner
         }
         private void SetEndPositions(int count, Transform target)
         {
-            Transform player = GameManager.Instance.data.Player.transform;
+            Transform player = GameManager.Instance._data.Player.transform;
             hunterPositions = new List<Vector3>(count);
             float rad = 1.3f;
             float angleSpacing = 360f / count;
@@ -59,7 +59,7 @@ namespace TKRunner
             IPlayerHunter h = enemy.GetComponent<IPlayerHunter>();
             spawned.Add(h);
             h.InitHunter();
-            h.SetTarget(GameManager.Instance.data.Player.GeometryCenter);
+            h.SetTarget(GameManager.Instance._data.Player.GeometryCenter);
             h.SetSpline(targetSpline);
 
             Vector3 attackPoint = hunterPositions[0];

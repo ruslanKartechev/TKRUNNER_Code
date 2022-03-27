@@ -19,16 +19,18 @@ namespace Commongame.Cam
                 _follower = GetComponent<CameraFollowManager>();
             _follower?.Init(this);
    
-            GameManager.Instance.eventManager.PlayerWin.AddListener(OnLevelEndReached);
-            GameManager.Instance.eventManager.PlayerLose.AddListener(OnPlayerLoose);
-            GameManager.Instance.eventManager.Impact.AddListener(OnImpact);
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnNewLevel);
+            GameManager.Instance._events.PlayerWin.AddListener(OnLevelEndReached);
+            GameManager.Instance._events.PlayerLose.AddListener(OnPlayerLoose);
+            GameManager.Instance._events.Impact.AddListener(OnImpact);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnNewLevel);
+           
         }
 
         private void OnNewLevel()
         {
             _follower.StopTracking();
             _cinemachine.ResetCinemachine();
+            _cinemachine.TeleportToStart();
         }
         private void OnImpact()
         {
@@ -37,15 +39,15 @@ namespace Commongame.Cam
         }
         private void OnLevelEndReached()
         {
-            Transform EndPos = GameManager.Instance.data.currentInst.WinCamPos;
+            Transform EndPos = GameManager.Instance._data.currentInst.WinCamPos;
             MoveToPoint(EndPos);
             RotateToPoint(EndPos);
         }
         private void OnPlayerLoose()
         {
 
-            Transform EndPos = GameManager.Instance.data.currentInst.LooseCam;
-            EndPos.parent = GameManager.Instance.data.currentInst.transform;
+            Transform EndPos = GameManager.Instance._data.currentInst.LooseCam;
+            EndPos.parent = GameManager.Instance._data.currentInst.transform;
             MoveToPoint(EndPos);
         }
         private void MoveToPoint(Transform target)

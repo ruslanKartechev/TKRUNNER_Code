@@ -54,7 +54,7 @@ namespace TKRunner
             Transform finish = GameObject.FindGameObjectWithTag(Tags.LevelEnd).transform;
             OnPlayerWin();
             transform.position = finish.position;
-            GameManager.Instance.eventManager.PlayerWin.Invoke();
+            GameManager.Instance._events.PlayerWin.Invoke();
         }
 
 #endif 
@@ -76,19 +76,19 @@ namespace TKRunner
             IKmanager.SetWeight(0);
             dragController.Init(this, manager);
 
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnLevelLoaded);
-            GameManager.Instance.eventManager.LevelStarted.AddListener(OnLevelStart);
-            GameManager.Instance.eventManager.LevelEndreached.AddListener(OnLevelEnd);
-            GameManager.Instance.eventManager.PlayerWin.AddListener(OnPlayerWin);
-            GameManager.Instance.data.Player = this;
+            GameManager.Instance._events.LevelLoaded.AddListener(OnLevelLoaded);
+            GameManager.Instance._events.LevelStarted.AddListener(OnLevelStart);
+            GameManager.Instance._events.LevelEndreached.AddListener(OnLevelEnd);
+            GameManager.Instance._events.PlayerWin.AddListener(OnPlayerWin);
+            GameManager.Instance._data.Player = this;
         }
 
         private void OnLevelLoaded()
         {
-            health.Init(this, GameManager.Instance.data.currentInst.Data._PlayerHealth.MaxHealth);
-            manager.InitActive(GameManager.Instance.data.currentInst.playerSpline);
-            GameManager.Instance.data.currentInst.WinCamPos = WinCamPLace;
-            GameManager.Instance.data.currentInst.LooseCam = LooseCamPlace;
+            health.Init(this, GameManager.Instance._data.currentInst.Data._PlayerHealth.MaxHealth);
+            manager.InitActive(GameManager.Instance._data.currentInst.playerSpline);
+            GameManager.Instance._data.currentInst.WinCamPos = WinCamPLace;
+            GameManager.Instance._data.currentInst.LooseCam = LooseCamPlace;
         }
 
         private void OnLevelStart()
@@ -100,12 +100,13 @@ namespace TKRunner
 
         private void OnLevelEnd()
         {
+            dragController.BreakDrag();
             dragController.DisallowDrag();
-            manager.StopMoving();
         }
 
         private void OnPlayerWin()
         {
+            manager.StopMoving();
             dragController.BreakDrag();
             manager.TurnBackwards(false);
             manager.StopRotationCountdown();
@@ -126,7 +127,7 @@ namespace TKRunner
                 OnDeath();
             }
             if (ShakeOnDamage)
-                GameManager.Instance.eventManager.Impact.Invoke();
+                GameManager.Instance._events.Impact.Invoke();
 
         }
         public void OnDamage()
@@ -145,12 +146,13 @@ namespace TKRunner
         }
         public void OnDeath()
         {
+            manager.StopMoving();
             dragController.BreakDrag();
             dragController.DisallowDrag();
             manager.OnDeath();
             ragdoll.SetActive();
             IKmanager.SetWeight(0);
-            GameManager.Instance.eventManager.PlayerLose.Invoke();
+            GameManager.Instance._events.PlayerLose.Invoke();
         }
 
 

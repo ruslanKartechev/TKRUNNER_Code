@@ -6,11 +6,7 @@ using Commongame;
 
 namespace TKRunner
 {
-    [System.Serializable]
-    public enum WeaponType
-    {
-        Default, Hammer, Shotgun, Sword, Axe, Bat
-    }
+
     public class ProceduralSpawnerManager : MonoBehaviour
     {
 

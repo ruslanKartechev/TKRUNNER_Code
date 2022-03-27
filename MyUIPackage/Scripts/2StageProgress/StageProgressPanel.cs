@@ -14,7 +14,7 @@ namespace Commongame.UI
         {
             mPanel = panelUI;
             panelUI.Init(this);
-            IsEditor = GameManager.Instance.data.EditorUIMode;
+            IsEditor = GameManager.Instance._data.EditorUIMode;
 
         }
 

@@ -14,7 +14,7 @@ namespace TKRunner {
 
         public Vector3 GetPushSource()
         {
-            return GameManager.Instance.data.Player.gameObject.transform.position;
+            return GameManager.Instance._data.Player.gameObject.transform.position;
         }
     }
 }

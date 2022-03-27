@@ -41,7 +41,7 @@ namespace TKRunner
             {
                 twoStep = MoreEffects.gameObject.GetComponent<ITwoStepEffect>();
             }
-            GameManager.Instance.eventManager.LevelLoaded.AddListener(OnLevelLoaded);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnLevelLoaded);
      
         }
 
@@ -64,8 +64,8 @@ namespace TKRunner
         {
             _lanternsManager?.StartLanters();
             _confettiManager?.StartConfetti();
-            GameManager.Instance.eventManager.LevelEndreached.Invoke();
-            GameManager.Instance.eventManager.PlayerWin.Invoke();
+            GameManager.Instance._events.LevelEndreached.Invoke();
+            GameManager.Instance._events.PlayerWin.Invoke();
             yield return new WaitForSeconds(ClosingDelay);
             twoStep?.OnClose();
         }

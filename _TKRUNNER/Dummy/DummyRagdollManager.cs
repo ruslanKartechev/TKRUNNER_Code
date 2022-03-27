@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using System.Threading;
-using UnityEditor;
+using Commongame.Sound ;
 using Commongame.Data;
 using Commongame;
 namespace TKRunner
@@ -101,9 +101,9 @@ namespace TKRunner
             ControllRB.isKinematic = false;
             ControllRB.useGravity = useGravity;
 
-            if (force.magnitude >= GameManager.Instance.data.currentInst.Data._collisionData.MaxRagdollPushForce)
+            if (force.magnitude >= GameManager.Instance._data.currentInst.Data._collisionData.MaxRagdollPushForce)
             {
-                force = force.normalized* GameManager.Instance.data.currentInst.Data._collisionData.MaxRagdollPushForce;
+                force = force.normalized* GameManager.Instance._data.currentInst.Data._collisionData.MaxRagdollPushForce;
             }
 
             ControllRB.AddForce(force, mode);
@@ -197,7 +197,7 @@ namespace TKRunner
         private void OnWallCollision()
         {
             InitCollider(false);
-            GameManager.Instance.sounds.PlaySingleTime(Sounds.WallHit);
+            GameManager.Instance._sounds.PlaySingleTime(Sounds.WallHit);
             if (CurrentState == RagdollStates.Drag)
             {
                 manager.DragTarget.BreakConnection();
@@ -210,7 +210,7 @@ namespace TKRunner
             if (currentState == RagdollStates.Drag)
             {
                 manager.DragTarget.BreakConnection();
-                GameManager.Instance.sounds.PlaySingleTime(Sounds.DummyCollision);
+                GameManager.Instance._sounds.PlaySingleTime(Sounds.DummyCollision);
             }
         }
 

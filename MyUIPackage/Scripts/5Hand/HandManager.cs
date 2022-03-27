@@ -82,7 +82,7 @@ namespace Commongame
                 if (distance >= 1)
                 {
                     Vector2 move = delta
-    * GameManager.Instance.data.currentInst.Data.HandMaxSpeed
+    * GameManager.Instance._data.currentInst.Data.HandMaxSpeed
     * Time.deltaTime * 100f;
                     if (distance < move.magnitude)
                         move = d;

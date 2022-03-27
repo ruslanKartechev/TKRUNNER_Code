@@ -18,9 +18,9 @@ namespace TKRunner
                 b.gameObject.SetActive(true);
                 b.StartBulletForward(Random.Range(0.75f * speed, 1.25f*speed));
                 b.ShowEffect();
-                b.SetParent(GameManager.Instance.data.currentInst.gameObject.transform);
+                b.SetParent(GameManager.Instance._data.currentInst.gameObject.transform);
                 GameManager.Instance._clearer.ClearWithDelay(b.transform, 
-                    GameManager.Instance.data.currentInst.Data._weaponsData.BulletsClearTime);
+                    GameManager.Instance._data.currentInst.Data._weaponsData.BulletsClearTime);
             }
           //  _bulletsClearing = StartCoroutine(BulletsClearer());
         }

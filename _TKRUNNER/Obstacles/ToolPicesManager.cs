@@ -29,7 +29,7 @@ namespace TKRunner
                     c.attachedRigidbody.AddForce(UnityEngine.Random.onUnitSphere * PushForce, ForceMode.Impulse);
                    
 
-                    c.transform.parent = GameManager.Instance.data.currentInst.transform;
+                    c.transform.parent = GameManager.Instance._data.currentInst.transform;
                     GameManager.Instance._clearer.ClearWithDelay(c.transform, GameManager.Instance._clearer.DefaultClearDelay);
                 }
             }
@@ -71,7 +71,7 @@ namespace TKRunner
 
         public void Break()
         {
-            gameObject.transform.parent = GameManager.Instance.data.currentInst.gameObject.transform ;
+            gameObject.transform.parent = GameManager.Instance._data.currentInst.gameObject.transform ;
             InitPieces();
         }
 
