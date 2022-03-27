@@ -25,12 +25,12 @@ namespace TKRunner
         private bool IsSliced = false;
         private CancellationTokenSource checkToken;
         private RagdollStates currentState;
-        public RagdollStates CurrentState { get { return currentState; } }
+
+        [HideInInspector] public DummyComponents _Components;
 
 
         public void TestPush()
         {
-            //ControllRB.useGravity = true;
             ControllRB.isKinematic = false;
             ControllRB.AddForce(-Vector3.forward*10);
         }
@@ -38,10 +38,17 @@ namespace TKRunner
 
         private void Start()
         {
+            if (_Components == null) _Components = GetComponent<DummyComponents>();
             InitCollider(false);
             currentState = RagdollStates.Passive;
 
 
+        }
+
+        public void Init(DummyManager _dummy, DummyComponents components)
+        {
+            _Components = components;
+            manager = _dummy;
         }
 
         public void InitCollider(bool state)
@@ -56,7 +63,6 @@ namespace TKRunner
                 checkToken.Cancel();
             IsSliced = true;
             ControllRB.gameObject.SetActive(false);
-          //  Destroy(this);
         }
 
 
@@ -110,10 +116,6 @@ namespace TKRunner
         }
     
 
-        public void Init(DummyManager _dummy)
-        {
-            manager = _dummy;
-        }
 
         public void StartGroundCheck(float time)
         {
@@ -136,86 +138,10 @@ namespace TKRunner
 
         }
 
-
-
-
-        public void SetRagdollState(RagdollStates state)
-        {
-            currentState = state;
-            switch (state)
-            {
-                //case RagdollStates.Drag:
-                //    GameManager.Instance.eventManager.StrongDummyImpact.AddListener(OnStrongCollision);
-                //    break;
-                //case RagdollStates.Active:
-                //    GameManager.Instance.eventManager.StrongDummyImpact.RemoveListener(OnStrongCollision);
-                //    break;
-                //case RagdollStates.Fly:
-                //    GameManager.Instance.eventManager.StrongDummyImpact.RemoveListener(OnStrongCollision);
-                //    break;
-            }
-        }
         public void HideCollider()
         {
             InitCollider(false);
         }
-        public void OnPortalEnter(DummyPortal portal)
-        {
-            if (portal == null )
-                return;
-            PortalData data = portal.GetOutPortalData();
-            if (data == null)
-                return;
-            InitCollider(false);
-            portal.ShowEffect();
-           // manager.transform.parent = null;
-            manager.DragTarget.BreakConnection();
-            currentState = RagdollStates.TP;
-            StartCoroutine(PortalTransition(data));
-        }
-        private IEnumerator PortalTransition(PortalData data)
-        {
-
-            manager.Renderer.enabled = false;
-            yield return null;
-            manager.Renderer.enabled = true;
-            //ControllJointRB.velocity = Vector3.zero;
-            //yield return new WaitForSeconds(data.TPdelay);
-            //contrJoint.connectedBody = null;
-            //MainBoneRB.transform.position = data.outPosition; ////// NOT MAIN BONE
-            //contrJoint.transform.position = data.outPosition;
-            //yield return new WaitForFixedUpdate();
-            //contrJoint.connectedBody = MainBoneRB;
-            ////Debug.Log("OutPOs: " + data.outPosition);
-            ////Debug.Log("My pos: " + ControllJointRB.position);
-            //yield return null;
-            //PushDoll(data.outForward ,true);
-            //manager.Renderer.enabled = true;
-
-        }
-
-        private void OnWallCollision()
-        {
-            InitCollider(false);
-            GameManager.Instance._sounds.PlaySingleTime(Sounds.WallHit);
-            if (CurrentState == RagdollStates.Drag)
-            {
-                manager.DragTarget.BreakConnection();
-            }
-
-
-        }
-        private void OnStrongCollision()
-        {
-            if (currentState == RagdollStates.Drag)
-            {
-                manager.DragTarget.BreakConnection();
-                GameManager.Instance._sounds.PlaySingleTime(Sounds.DummyCollision);
-            }
-        }
-
-
-
 
         private void OnDisable()
         {

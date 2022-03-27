@@ -64,30 +64,43 @@ namespace TKRunner
             TurnForward();
 
         }
-        public void TurnBackwards(bool runAnim = true)
+        public void TurnBackwards(bool runAnim = true, bool clockwise = true)
         {
-            if (TurningRoutine != null) StopCoroutine(TurningRoutine);
             if (runAnim)
             {
                 mAnim.SetTrigger("ForwardToBackward");
                 mAnim.ResetTrigger("BackwardToForward");
             }
-            TurningRoutine = StartCoroutine(Turning(180));
+            if (currentDir == 'b') return;
             currentDir = 'b';
+            if (TurningRoutine != null) StopCoroutine(TurningRoutine);
+      
+            if (clockwise == true)
+            {
+                TurningRoutine = StartCoroutine(Turning(180f));
+            }
+            else
+            {
+                TurningRoutine = StartCoroutine(Turning(-180f));
+            }
+ 
         }
         public void TurnForward()
         {
-            if (TurningRoutine != null) StopCoroutine(TurningRoutine);
             mAnim.SetTrigger("BackwardToForward");
             mAnim.ResetTrigger("ForwardToBackward");
+            if (currentDir == 'f') return;
+            if (TurningRoutine != null) StopCoroutine(TurningRoutine);
+           
             TurningRoutine = StartCoroutine(Turning(0));
             currentDir = 'f';
         }
-
         private IEnumerator Turning(float end)
         {
             float elapsed = 0f;
             float start = Model.eulerAngles.y;
+            if (start == 360) start = 0;
+            if (end == 360) end = 0;
             while (elapsed <= _settings.TurnTime)
             {
                 float y = Mathf.Lerp(start, end, elapsed / _settings.TurnTime);
@@ -97,25 +110,27 @@ namespace TKRunner
             }
             SetModelAngle(end);
         }
+
         private void PlayForwardRunAnim()
         {
             mAnim.Play(AnimNames.ForwardRun);
         }
+
         private void SetModelAngle(float angle)
         {
+           angle =  Mathf.Clamp(angle, -180, 180);
             Model.localEulerAngles = new Vector3(Model.localEulerAngles.x,
                 angle,
                 Model.localEulerAngles.z);
         }
 
+        #region Dragging
 
-        public void OnDragStart()
+        public void OnDragStart(Vector3 position)
         {
+            OnDragMove(position);
             mAnim.SetFloat("Blend", 0);
-            mAnim.Play(AnimNames.MagicIdle, BaseAnimLayer,0);
-            StopRotationCountdown();
-            if (currentDir == 'f')
-                TurnBackwards();
+ 
         }
         public void OnDragEnd(Action onAnimEnd)
         {
@@ -124,6 +139,30 @@ namespace TKRunner
             GameManager.Instance._data.currentWeapon = WeaponType.Default;
             InitRotationCountdown();
             GameManager.Instance._events.WeaponEquipped.Invoke();
+        }
+
+        public void OnDragMove(Vector3 position)
+        {
+            double my = _controller.currentPercent;
+            SplineSample res = new SplineSample();
+            follower.Project(position, res);
+            Vector3 distance = position - transform.position;
+            float proj = Vector3.Dot(distance, transform.right);
+            if (res.percent < my)
+            {
+                if (proj >= 0)
+                    TurnBackwards(true,true);
+                else
+                {
+                   
+                    TurnBackwards(true,false);
+                }
+                   
+            }
+            else
+            {
+                TurnForward();
+            }
         }
         public void OnDragBroken()
         {
@@ -138,13 +177,16 @@ namespace TKRunner
                 onEndAction = null;
             }
         }
+        #endregion
+
+
 
         public void OnDamage()
         {
             if (TurningRoutine != null) StopCoroutine(TurningRoutine);
             if (RotationHandlerRoutine != null) StopCoroutine(RotationHandlerRoutine);
-            mAnim.SetTrigger("BackwardToForward");
             mAnim.ResetTrigger("ForwardToBackward");
+            mAnim.SetTrigger("BackwardToForward");
             if(currentDir == 'b')
                 TurnForward();
             mAnim.SetBool("DoRoll", true);
@@ -165,18 +207,6 @@ namespace TKRunner
             mAnim.StopPlayback();
             mAnim.enabled = false;
         }
-
-
-        //public void OnCollisionEnter(Collision collision)
-        //{
-        //    switch (collision.collider.tag)
-        //    {
-        //        case Tags.LevelEnd:
-        //            GameManager.Instance.eventManager.LevelEndreached.Invoke();
-        //            GameManager.Instance.eventManager.PlayerWin.Invoke();
-        //            break;
-        //    }
-        //}
 
     }
 

@@ -68,6 +68,7 @@ namespace TKRunner
             rotationHandler = StartCoroutine(RotationHandler());
             GameManager.Instance._data.currentWeapon = _type;
             GameManager.Instance._events.WeaponEquipped.Invoke();
+            transform.parent = GameManager.Instance._data.currentInst.transform;
         }
         public void DragEnd()
         {

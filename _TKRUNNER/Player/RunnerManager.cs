@@ -56,17 +56,19 @@ namespace TKRunner
             follower.motion.offset = Vector2.zero;
             follower.follow = false;
             follower.enabled = true;
+            bool wasApplied = follower.motion.applyRotation;
+            follower.motion.applyRotation = true;
             SplineSample result = new SplineSample();
-            follower.Project(transform.position, result);
+            follower.Project(transform.position,result);
             Vector3 dist = (transform.position - result.position);
             follower.motion.applyPosition = true;
             follower.motion.applyRotation = true;
-            float Xoffset = Vector3.Dot(dist, follower.result.right);
+            float Xoffset = Vector3.Dot(dist, result.right);
             follower.motion.offset = new Vector2(Xoffset, follower.motion.offset.y);
             follower.SetPercent(result.percent);
 
-            follower.Project(transform.position, follower.result);
-
+            //follower.Project(transform.position, follower.result);
+            follower.motion.applyRotation = wasApplied;
         }
 
         public void StartMoving(bool blendAnim = true, bool playAnim = true)

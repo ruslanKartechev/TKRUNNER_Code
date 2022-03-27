@@ -84,14 +84,14 @@ namespace TKRunner
 
         public void StopDragEffect()
         {
-            _effectOffset = Vector3.zero;
-            GameManager.Instance._sounds?.StopLoopedEffect(Sounds.Magic);
             _CurrentTarget = null;
             if(dragEffectInst != null)
                 dragEffectInst.gameObject.SetActive(false);
             if (notAllowedInst != null)
                 notAllowedInst.gameObject.SetActive(false);
             dragParticles?.Stop();
+            if(GameManager.Instance)
+                GameManager.Instance._sounds?.StopLoopedEffect(Sounds.Magic);
             HideAura();
         }
         private async void ShowingParticles()

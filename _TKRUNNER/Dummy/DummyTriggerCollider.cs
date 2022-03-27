@@ -26,7 +26,6 @@ namespace TKRunner
                     manager.OnTruckTrigger?.Invoke(other.transform);
                     break;
                 case Tags.Ground:
-          
                     manager.OnGroundFall?.Invoke();
                     break;
                 case Tags.NormalDummy:
@@ -36,6 +35,8 @@ namespace TKRunner
             }
 
         }
+        
+
 
     }
 }

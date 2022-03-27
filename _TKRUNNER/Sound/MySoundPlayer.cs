@@ -12,7 +12,6 @@ namespace Commongame
 
         public void PlayEffectOnce()
         {
-
             GameManager.Instance._sounds.PlaySingleTime(_sound.ToString());
         }
 

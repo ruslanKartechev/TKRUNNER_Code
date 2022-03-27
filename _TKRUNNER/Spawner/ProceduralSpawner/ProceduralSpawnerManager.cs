@@ -34,8 +34,7 @@ namespace TKRunner
 
         public void Stop()
         {
-            if (_countdownHandler != null)
-                StopCoroutine(_countdownHandler);
+            StopAllCoroutines();
         }
 
         public void ResetCountdown()

@@ -7,7 +7,7 @@ namespace TKRunner
 {
     public enum DummyStates
     {
-        Idle, Waiting, Run, Drag, Thrown, Standup, Truck, Dead
+        Idle, Waiting, Run, Standup, Truck, Dead
     }
 
 

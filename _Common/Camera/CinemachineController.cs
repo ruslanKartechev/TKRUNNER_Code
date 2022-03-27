@@ -60,16 +60,17 @@ namespace TKRunner {
         }
 
 
-        public void TeleportToStart()
+        public void  TeleportToStart()
         {
-            StopMachineFollow();
-            StopMachineLookAt();
-            Vector3 position = cam_follow.ShoulderOffset + GameManager.Instance._data.currentInst.followObj.position;
-            virtualCamera.transform.position = position;
-            virtualCamera.transform.rotation = Quaternion.LookRotation(GameManager.Instance._data.currentInst.lookObj.position);
-            ResetCinemachine();
-            //Quaternion rotation = Quaternion.LookRotation(position);
+            virtualCamera.Follow = null;
+            virtualCamera.LookAt = null;
+            StartCoroutine(Teleporting());
 
+        }
+        private IEnumerator Teleporting()
+        {
+            yield return null;
+            ResetCinemachine();
         }
 
         public void ResetCinemachine()

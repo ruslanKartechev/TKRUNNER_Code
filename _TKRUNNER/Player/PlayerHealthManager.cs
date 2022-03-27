@@ -19,18 +19,38 @@ namespace TKRunner
         private Color startColor;
 
         private Coroutine colorChange;
-        public void Init(PlayerController _cont, int health)
+        private float countDown = 0f;
+        private int startHitsMax;
+        private Coroutine healthAdding;
+        public void Init(PlayerController _cont, PlayerHealthData data)
         {
             startColor = rend.material.color;
             controller = _cont;
+            int health = data.StartHealth;
+            if(health < 1)
+            {
+                health = 1;
+            }
             hitsToDie = health;
+            startHitsMax = health;
+
+            if (data.AddHealth)
+            {
+                if (healthAdding != null) StopCoroutine(healthAdding);
+                healthAdding = StartCoroutine(LifeAddCountdown(data.HealthAddDelay));
+            }
+
         }
+
+
+
 
         public bool DoDie()
         {
             hitsTaken++;
             if (hitsTaken >= hitsToDie && isDead == false)
             {
+                if (healthAdding != null) StopCoroutine(healthAdding);
                 Die();
                 return true;
             }
@@ -43,15 +63,15 @@ namespace TKRunner
 
         public void TakeHit()
         {
-
             if (colorChange != null)
             {
                 StopCoroutine(colorChange);
                 SetMatColor(startColor);
             }
-               
             colorChange = StartCoroutine(ColorFlick());
         }
+
+
         private IEnumerator ColorFlick()
         {
             yield return null;
@@ -59,6 +79,31 @@ namespace TKRunner
             yield return new WaitForSeconds(colorChangeTime);
             SetMatColor(startColor);
         }
+        private IEnumerator LifeAddCountdown(float time)
+        {
+            while (true)
+            {
+
+                countDown += Time.deltaTime;
+                if(countDown >= time)
+                {
+                    AddHitsMax();
+                    countDown = 0f;
+                }
+
+
+                yield return null;
+            }
+        }
+
+        private void AddHitsMax()
+        {
+            if (hitsToDie < startHitsMax + 1)
+            {
+                hitsToDie++;
+            }
+        }
+
 
         private void SetMatColor(Color color)
         {

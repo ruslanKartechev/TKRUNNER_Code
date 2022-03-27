@@ -11,38 +11,36 @@ namespace TKRunner {
         public SoundNames levelEnd;
         public SoundNames win;
         public SoundNames loose;
-        public SoundNames lazerApproached;
-        public SoundNames portalApproached;
 
         private void Start()
         {
             GameManager.Instance._events.LevelStarted.AddListener(OnLevelStart);
             GameManager.Instance._events.PlayerWin.AddListener(OnPlayerWin);
             GameManager.Instance._events.PlayerLose.AddListener(OnPlayerLoose);
-            GameManager.Instance._events.LevelEndreached.AddListener(OnLevelEnd);
+            GameManager.Instance._events.LevelLoaded.AddListener(OnLevelLoaded);
         }
 
 
-        private void OnLevelStart()  
+        private void OnLevelLoaded()
         {
             GameManager.Instance._sounds.StopLoopedEffect(levelEnd.ToString());
             GameManager.Instance._sounds.PlayMusic();
         }
-        private void OnLevelEnd()
+
+        private void OnLevelStart()  
         {
-            GameManager.Instance._sounds.StopMusic();
+            GameManager.Instance._sounds.StopLoopedEffect(levelEnd.ToString());
         }
         private void OnPlayerWin()
         {
-            //List<string> names = new List<string>(2);
-            //names.Add(win.ToString());
-            //names.Add(levelEnd.ToString());
-            //GameManager.Instance.sounds.PlaySequence(names);
+
+            GameManager.Instance._sounds.StopMusic();
             GameManager.Instance._sounds.PlaySingleTime(win.ToString());
             GameManager.Instance._sounds.StartSoundEffect(levelEnd.ToString());
         }
         private void OnPlayerLoose()
         {
+            GameManager.Instance._sounds.StopMusic();
             GameManager.Instance._sounds.PlaySingleTime(loose.ToString());
         }
         private void InSourceVicinity(SoundNames sound, bool play)

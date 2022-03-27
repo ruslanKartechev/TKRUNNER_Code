@@ -8,7 +8,10 @@ namespace Commongame.Sound
     public enum SoundNames
     {
         Magic,
-        Scream,
+        Scream_1,
+        Scream_2,
+        Scream_3,
+
         WallHit,
         AxeSwing,
         SwordSwing,
@@ -22,12 +25,15 @@ namespace Commongame.Sound
         Lazer,
         Portal,
         DummyCollision,
+        LevelStart,
         Win,
         GameOver,
         Finish,
         ButtonClick,
         ShotGunFire,
         BoxBreak,
+
+
 
         Music_1
     }
@@ -49,7 +55,6 @@ namespace Commongame.Sound
         public const string Portal = "Portal";
         public const string Lazer = "Lazer";
         //
-        public const string DummyCollision = "DummyCollision";
         public const string Win = "Win";
         public const string Loose = "Loose";
         public const string Finish = "Finish";

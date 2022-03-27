@@ -12,23 +12,6 @@ using UnityEditor;
 namespace TKRunner
 {
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(PlayerController))]
-    public class PlayerControllerEdtitor : Editor
-    {
-
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-            PlayerController me = (PlayerController)target;
-            if (GUILayout.Button("Win"))
-            {
-                me.AutoWin();
-            }
-        }
-    }
-
-#endif
 
     public class PlayerController : MonoBehaviour,IDamagable
     {
@@ -59,9 +42,6 @@ namespace TKRunner
 
 #endif 
 
-
-
-
         private void Start()
         {
             if (manager == null)
@@ -85,7 +65,9 @@ namespace TKRunner
 
         private void OnLevelLoaded()
         {
-            health.Init(this, GameManager.Instance._data.currentInst.Data._PlayerHealth.MaxHealth);
+            health.Init(this, GameManager.Instance._data.currentInst.Data._PlayerHealth);
+            if(GameManager.Instance._data)
+
             manager.InitActive(GameManager.Instance._data.currentInst.playerSpline);
             GameManager.Instance._data.currentInst.WinCamPos = WinCamPLace;
             GameManager.Instance._data.currentInst.LooseCam = LooseCamPlace;
@@ -113,7 +95,6 @@ namespace TKRunner
             manager.PlayWinAnim();
             allowDamage = false;
 
-
         }
         public void TakeHit()
         {
@@ -128,7 +109,6 @@ namespace TKRunner
             }
             if (ShakeOnDamage)
                 GameManager.Instance._events.Impact.Invoke();
-
         }
         public void OnDamage()
         {
@@ -155,12 +135,26 @@ namespace TKRunner
             GameManager.Instance._events.PlayerLose.Invoke();
         }
 
-
-
-        
-
-
     }
 
+
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(PlayerController))]
+    public class PlayerControllerEdtitor : Editor
+    {
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            PlayerController me = (PlayerController)target;
+            if (GUILayout.Button("Win"))
+            {
+                me.AutoWin();
+            }
+        }
+    }
+
+#endif
 
 }

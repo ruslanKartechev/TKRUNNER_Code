@@ -29,7 +29,7 @@ namespace Commongame.Cam
         private void OnNewLevel()
         {
             _follower.StopTracking();
-            _cinemachine.ResetCinemachine();
+            _follower.StopAllCoroutines();
             _cinemachine.TeleportToStart();
         }
         private void OnImpact()
@@ -45,7 +45,6 @@ namespace Commongame.Cam
         }
         private void OnPlayerLoose()
         {
-
             Transform EndPos = GameManager.Instance._data.currentInst.LooseCam;
             EndPos.parent = GameManager.Instance._data.currentInst.transform;
             MoveToPoint(EndPos);

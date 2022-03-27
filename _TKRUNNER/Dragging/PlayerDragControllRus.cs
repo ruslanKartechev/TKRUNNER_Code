@@ -31,7 +31,6 @@ public class PlayerDragControllRus : MonoBehaviour
     [Space(5)]
     [SerializeField] private DragVelocityCalculator _calculator;
     [SerializeField] private LayerMask DragMask;
-    private PlayerManager manager;
     private PlayerController controller;
 
     private Coroutine movingDP;
@@ -47,9 +46,6 @@ public class PlayerDragControllRus : MonoBehaviour
 
     private void Start()
     {
-        if (manager == null)
-            manager = GetComponent<PlayerManager>();
-
         virtualPosition.x = Screen.width / 2;
         virtualPosition.y = Screen.height / 2;
     }
@@ -70,7 +66,7 @@ public class PlayerDragControllRus : MonoBehaviour
             {
                 if (_draggingNow as MonoBehaviour != null)
                 {
-                    manager.OnDragEnd(DestroyAnimated);
+                    controller.manager.OnDragEnd(DestroyAnimated);
                 }
             }
         }
@@ -106,10 +102,6 @@ public class PlayerDragControllRus : MonoBehaviour
                         ApplyCurvePostionDefault();
                     else
                         ApplyCurvePosition(curvePops);
-                }
-                else
-                {
-                    Debug.Log("not allowed");
                 }
             }
             else
@@ -182,7 +174,7 @@ public class PlayerDragControllRus : MonoBehaviour
     public void Init(PlayerController _controller, PlayerManager _manager)
     {
         controller = _controller;
-        manager = _manager;
+        controller.manager = _manager;
 
         GameManager.Instance._events.LevelEndreached.AddListener(OnLevelEnd);
         GameManager.Instance._events.LevelStarted.AddListener(OnNewLevel);
@@ -230,21 +222,17 @@ public class PlayerDragControllRus : MonoBehaviour
                 controller.IKmanager.StartHandIK();
                 if (draggable.IsActive())
                 {
-                    manager.OnDragStart();
                     _draggingNow = draggable;
                     _CurrentTarget = draggable.GetGameObject().transform;
-
-                    Rigidbody target = draggable.GetRigidBody() ;
-                    target.isKinematic = false;
+                    //Rigidbody target = draggable.GetRigidBody() ;
+                    //target.isKinematic = false;
                     DragPlane plane = SpawnDragPlane(_CurrentTarget.position, draggable.GetPlaneHeight());
-
                     SpawnCurvePoint(transform.position, _CurrentTarget.position);
                     SpawnDragAura();
                     effectManager.InitOffset(_draggingNow.AuraOffset());
                     effectManager.ShowEffectDrag(_CurrentTarget, _CurvePoint);
-
+                    controller.manager.OnDragStart(_CurrentTarget.position);
                     _draggingNow?.DragStart(plane, BreakDrag);
-                //    ApplyNewPos(GetRealPosition(Input.mousePosition));
                     StartDragPointMovement();
                 }
             }
@@ -274,7 +262,7 @@ public class PlayerDragControllRus : MonoBehaviour
     {
         if(movingDP != null)
             StopCoroutine(movingDP);
-        manager.OnDragBroken();
+        controller.manager.OnDragBroken();
         _calculator.StopStopCalculator();
         DestroyAnimated();
     }
@@ -284,6 +272,8 @@ public class PlayerDragControllRus : MonoBehaviour
         if (_CurrentTarget == null) return;
         _CurrentTarget.position = newPos;
         controller.IKmanager.Move(newPos);
+        controller.manager.OnDragMove(newPos);
+
     }
     private void ApplyCurvePosition(Vector3 dragPos)
     {

@@ -9,7 +9,6 @@ using Commongame.Data;
 using Commongame;
 namespace TKRunner
 {
-
     public class PortalSpawnerManager : MonoBehaviour
     {
         [Header("Dummy settings")]
@@ -101,6 +100,7 @@ namespace TKRunner
             target.position = curve.GetPoint(curvePoints,0f);
             while(elapsed <= time && target !=null)
             {
+                target.rotation = transform.rotation;
                 target.position = curve.GetPoint(curvePoints, elapsed / time);
                 elapsed += Time.deltaTime;
                 await Task.Yield();

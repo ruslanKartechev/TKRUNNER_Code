@@ -51,7 +51,9 @@ namespace Commongame.Sound
             Sound sound = sounds.soundEffects.Find(x => x.name == soundName);
             if (sound == null)
                 return;
-            AudioSource source = sourceManager.FindFreeSource(SourceByName.EffectsSource).source;
+            SoundSource s = sourceManager.FindFreeSource(SourceByName.EffectsSource);
+            if (s == null) return;
+            AudioSource source = s.source;
             if (source == null )
                 return;
             source.pitch = sound.pitch;

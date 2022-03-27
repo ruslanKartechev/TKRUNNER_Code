@@ -1,6 +1,5 @@
 ﻿using Dreamteck.Splines;
 using Commongame;
-using Commongame.Sound;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using Commongame.Beizer;
 namespace TKRunner
 {
 
@@ -40,18 +40,10 @@ namespace TKRunner
         [SerializeField] private EnemySettings _settings;
         [SerializeField] private DummyTruckData _truckSettings;
         [Space(10)]
-        [SerializeField] private SkinnedMeshRenderer _renderer;
-        [SerializeField] private AudioSource _audio;
-        [Header("Colliders")]
-        [SerializeField] private Collider TriggerColl;
-        [SerializeField] private CapsuleCollider capColl;
-        [Header("Scripts")]
-        public DummyRagdollManager ragdollManager;
-        public DummySlicer _sclicer;
-        public DummyTarget DragTarget;
-        public DummyTriggerCollider _triggerColl;
+        [HideInInspector] public DummySoundManager _soundManager;
+        [HideInInspector] public DummyComponents _Components;
 
-        public SkinnedMeshRenderer Renderer { get { return _renderer; } }
+
         private bool IsDefeated = false;
         private bool IsVulnarable = true;
         private Vector3 distanceToTarget = new Vector3();
@@ -80,8 +72,6 @@ namespace TKRunner
         public float CurrentPercent { get { return (float)follower.result.percent; } }
         public float CurrentSpeed { get { return follower.followSpeed; } }
 
-        public DummyTarget _Target { get { return DragTarget; } }
-
         public DummyStates CurrentState = DummyStates.Idle;
 
 
@@ -90,14 +80,16 @@ namespace TKRunner
         {
             follower.follow = false;
             follower.enabled = false;
+            _Components = GetComponent<DummyComponents>();
+            _soundManager = new DummySoundManager(_Components);
+
         }
         private void OnEnable()
         {
-            _triggerColl?.Init(this);
-            DragTarget?.Init(this);
-            ragdollManager?.Init(this);
-            if(TriggerColl != null)
-                TriggerColl.enabled = true;
+            _Components._trigger.Init(this);
+            _Components._ragdoll.Init(this, _Components);
+            if(_Components.TriggerColl != null)
+                _Components.TriggerColl.enabled = true;
             StartCoroutine(VulnerabilityCheckHandler());
 
         }
@@ -251,16 +243,17 @@ namespace TKRunner
         }
         public async void ActivateDefault()
         {
+            base.InitActive(GameManager.Instance._data.currentInst.levelSpline);
             await Task.Delay((int)(_settings.WaitAfterSpawn*1000));
             if (disableToken.IsCancellationRequested == true) return;
             rb.constraints = RigidbodyConstraints.None;
-            base.InitActive(GameManager.Instance._data.currentInst.levelSpline);
+       
             _CurrentTarget = GameManager.Instance._data.Player.transform;
 
             SetFollowSpeed(_settings.StartSpeed);
             SetFollowerDetection();
             if (detecting != null) StopCoroutine(detecting);
-            detecting = StartCoroutine(PlayerDetector());
+            detecting = StartCoroutine(TargetDetector());
             StartImmidiate(false);
             mAnim.Play(AnimNames.DummyRun, 0, UnityEngine.Random.Range(0f,0.5f));
             CurrentState = DummyStates.Run;
@@ -301,6 +294,12 @@ namespace TKRunner
             _CurrentTarget = GameManager.Instance._data.Player.transform;
             SetFollowSpeed(0);
             mAnim.enabled = true;
+
+            transform.parent = GameManager.Instance._data.currentInst.transform;
+            _CurrentTarget = GameManager.Instance._data.Player.transform;
+            OnAttackDistance = OnFreePlayerApproached;
+
+
             mAnim.Play(AnimNames.DummyWait,0,UnityEngine.Random.Range(0f,0.6f));
             if (lookingAtPlayer != null) StopCoroutine(lookingAtPlayer);
 
@@ -310,15 +309,14 @@ namespace TKRunner
         {
             await Task.Delay((int)(1000*_settings.WaitAfterSpawn));
             if (!this || CurrentState == DummyStates.Dead) return;
+            if (detecting != null) StopCoroutine(detecting);
+            detecting = StartCoroutine(TargetDetector());
 
-            transform.parent = GameManager.Instance._data.currentInst.transform;
-            _CurrentTarget = GameManager.Instance._data.Player.transform;
             CurrentState = DummyStates.Run;
             mAnim.Play(AnimNames.DummyRun);
             freeMoving = StartCoroutine(FreeMovement());
-            if (detecting != null) StopCoroutine(detecting);
-            detecting = StartCoroutine(PlayerDetector());
-            OnAttackDistance = OnFreePlayerApproached;
+           
+           
         }
 
         private IEnumerator LookAtPlayer()
@@ -350,9 +348,7 @@ namespace TKRunner
         }
         private void OnFreePlayerApproached()
         {
-            StopCoroutine(detecting);
-            StopCoroutine(lookingAtPlayer);
-            StopCoroutine(freeMoving);
+            StopAllCoroutines();
             AttackPlayer();
         }
         #endregion
@@ -373,7 +369,7 @@ namespace TKRunner
             SetFollowSpeed(_settings.StartSpeed );
             SetFollowerDetection();
             if (detecting != null) StopCoroutine(detecting);
-            detecting = StartCoroutine(PlayerDetector());
+            detecting = StartCoroutine(TargetDetector());
             StartImmidiate(true);
             CurrentState = DummyStates.Run;
             OnTruckTrigger = OnTruckCollision;
@@ -448,14 +444,14 @@ namespace TKRunner
             }
             SetFollowerDetection();
             if (detecting != null) StopCoroutine(detecting);
-            detecting = StartCoroutine(PlayerDetector());
+            detecting = StartCoroutine(TargetDetector());
             if (jumpToken.Token.IsCancellationRequested == false)
             {
                 CurrentState = DummyStates.Run;
                 IsRunning = true;
                 rb.isKinematic = false;
-                capColl.enabled = true;
-                capColl.isTrigger = false;
+                _Components.MainColl.enabled = true;
+                _Components.MainColl.isTrigger = false;
                 await SpeedChangingDirect(2.5f,
                     _settings.StartSpeed * GameManager.Instance._data.currentInst.Data.moveData.GlobalSpeedMod,
                      jumpToken.Token);
@@ -493,10 +489,9 @@ namespace TKRunner
             base.StopMoving();
             if (detecting != null) StopCoroutine(detecting);
         }
-        private IEnumerator PlayerDetector()
+        private IEnumerator TargetDetector()
         {
             bool detect = true;
-            bool approachedCalled = false;
             while (detect)
             {
                 SplineSample result = new SplineSample();
@@ -504,26 +499,19 @@ namespace TKRunner
                 double distance = (result.percent - follower.result.percent) 
                     * GameManager.Instance._data.currentInst.TrackUnitLength*100;
                 distanceToTarget = _CurrentTarget.position - transform.position;
-             
                 float dirDist = (distanceToTarget).magnitude;
-
                 if(distance <= _settings.SlowDownDistance)
                 {
                     OnSlowDownDistance?.Invoke();
                 }
                 if (distance <= _settings.ApproachDistance || distance <= 0.5f) // min == 0.5f
                 {
-                    if (!approachedCalled) { OnPlayerApproached?.Invoke() ;  approachedCalled = true; }
-                    if ( dirDist <= _settings.JumpAttackDistance)
-                    {
-                        OnAttackDistance?.Invoke();
-                    }
-
+                    OnPlayerApproached?.Invoke();
                 }
-                //else if (distance >= _settings.TPdistance)
-                //{
-                //    OnDummyBehind?.Invoke();
-                //}
+                if (dirDist <= _settings.JumpAttackDistance)
+                {
+                    OnAttackDistance?.Invoke();
+                }
                 yield return null;
             }
         }
@@ -532,7 +520,7 @@ namespace TKRunner
         {
             while (true)
             {
-                if (Renderer.isVisible == false)
+                if (_Components.Renderer.isVisible == false)
                 {
                     SetInvulnerable();
                 }
@@ -563,14 +551,6 @@ namespace TKRunner
             if(detecting!=null) StopCoroutine(detecting);
             AttackPlayer();
         }
-        private void OnFollowerFarBehind()
-        {
-            SplineSample res = new SplineSample();
-            follower.Project(Camera.main.transform.position, res);
-            follower.SetPercent(res.percent);
-        }
-
-
         private void SlowDown()
         {
             if (sideMoving != null) StopCoroutine(sideMoving);
@@ -584,7 +564,9 @@ namespace TKRunner
             float startSpeed = follower.followSpeed;
             follower.followSpeed = GameManager.Instance._data.Player.currentSpeed;
             yield return new WaitForSeconds(_settings.SlowDownTime);
+            OnFollowerPlayerApproached();
             follower.followSpeed = startSpeed;
+            
             OnPlayerApproached = OnFollowerPlayerApproached;
 
         }
@@ -659,7 +641,6 @@ namespace TKRunner
         }
         private void ApplyFollowerRotation(bool apply)
         {
-            Debug.Log("applied follower rot");
             follower.motion.applyRotation = apply;
         }
 
@@ -669,42 +650,65 @@ namespace TKRunner
 
         private void AttackPlayer()
         {
-            if (jumpToken != null) jumpToken.Cancel();
-            jumpToken = new CancellationTokenSource();
-            
             mAnim.Play(AnimNames.DummyJump);
-            Vector3 pushVector = (GameManager.Instance._data.Player.transform.position 
-                - transform.position 
-                + GameManager.Instance._data.Player.transform.forward).normalized
-                + transform.up * _settings.UpwardPushModifier;
-
             OnPlayerContact = OnPlayerAttackContact;
-            if (sideMoving != null)
-                StopCoroutine(sideMoving);
-            PushDummy(pushVector * mainSpeed * _settings.AttackPushModifier);
-          
-            OnGroundFall = OnAttackedFall;
+            //Vector3 pushVector = (GameManager.Instance._data.Player.transform.position 
+            //    - transform.position 
+            //    + GameManager.Instance._data.Player.transform.forward).normalized
+            //    + transform.up * _settings.UpwardPushModifier;
+            //transform.rotation = Quaternion.LookRotation(pushVector);
+            if (sideMoving != null) StopCoroutine(sideMoving);
+            PushBezier();
+          //  StopAllCoroutines();
+          //   PushDummy(pushVector * _settings.StartSpeed * _settings.AttackPushModifier);
+          //   OnGroundFall = OnAttackedFall;
+        }
+
+               
+        private void PushBezier()
+        {
+            Vector3 start = transform.position;
+            Vector3 end = GameManager.Instance._data.Player.transform.position;
+
+            float time = 0.6f * (end-start).magnitude / 2f;
+            StartCoroutine(BezierPush(start, time, OnAttackedFall));
 
         }
+        private IEnumerator BezierPush(Vector3 start, float time, Action onEnd = null)
+        {
+            float elapsed = 0;
+            float height = UnityEngine.Random.Range(2.5f, 4f);
+            while(elapsed <= time)
+            {
+                Vector3 end = GameManager.Instance._data.Player.transform.position;
+                Vector3 curve = Vector3.Lerp(start, end, 0.5f);
+                curve.y = end.y + height;
+                transform.position =  Bezier.GetPointQuadratic(start,curve, end, elapsed/time);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            onEnd?.Invoke();
+        }
+
 
         private void OnAttackedFall()
         {
+            OnGroundFall = null;
             mAnim.StopPlayback();
             SetDead();
-            ragdollManager.SetPureRagdoll();
-            OnGroundFall = null;
+            _Components._ragdoll.SetPureRagdoll();
         }
         private void OnPlayerAttackContact()
         {
-            if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit,3, GameManager.Instance._data.PlayerMask))
-            {
-                IDamagable target = hit.collider.gameObject.GetComponent<IDamagable>();
-                if(target != null)
-                {
-                    target.TakeHit();
-                }
-            }
-
+            //if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit,3, GameManager.Instance._data.PlayerMask))
+            //{
+            //    IDamagable target = hit.collider.gameObject.GetComponent<IDamagable>();
+            //    if(target != null)
+            //    {
+            //        target.TakeHit();
+            //    }
+            //}
+            GameManager.Instance._data.Player.TakeHit();
             OnPlayerContact = null;
         }
 
@@ -716,26 +720,24 @@ namespace TKRunner
         public void Die()
         {
             if (CurrentState != DummyStates.Dead)
-            {                rb.isKinematic = false;
+            {                
+                rb.isKinematic = false;
                 rb.constraints = RigidbodyConstraints.None;
                 SetDead();
+                _soundManager.OnDeath();
                 if (detecting != null)
                     StopCoroutine(detecting);
                 SetRagdoll();
-                DragTarget.SetNonDraggable();
-
             }
         }
         private void SetDead()
         {
             if (rb != null)
                 Destroy(rb);
-            if (capColl != null)
-                Destroy(capColl);
-            if (TriggerColl != null)
-                Destroy(TriggerColl);
-            //if (slowingDown != null) StopCoroutine(slowingDown);
-            //if (freeMoving != null) StopCoroutine(freeMoving);
+            if (_Components.MainColl != null)
+                Destroy(_Components.MainColl);
+            if (_Components.TriggerColl != null)
+                Destroy(_Components.TriggerColl);
             StopAllCoroutines();
             if (disableToken != null) disableToken.Cancel();
             CurrentState = DummyStates.Dead;
@@ -750,10 +752,9 @@ namespace TKRunner
         // ragdoll management
         private void SetRagdoll(bool doGroundCheck = true)
         {
-            if (ragdollManager == null) { Debug.Log("<color=red>ragdoll manager is null</color>");return; }
-            ragdollManager.SetActive();
+            _Components._ragdoll.SetActive();
             if(doGroundCheck)
-                ragdollManager.StartGroundCheck(GameManager.Instance._data.currentInst.Data.effects.freeFallTime);
+                _Components._ragdoll.StartGroundCheck(GameManager.Instance._data.currentInst.Data.effects.freeFallTime);
             if(mAnim!=null)
                 mAnim.enabled = false;
         }
@@ -794,7 +795,6 @@ namespace TKRunner
         {
             rb.isKinematic = false;
             rb.constraints = RigidbodyConstraints.None;
-            CurrentState = DummyStates.Thrown;
             StopMoving();
             rb.velocity = force;
 
@@ -813,11 +813,11 @@ namespace TKRunner
 
         public bool Slash(Plane plane)
         {
-            //if (IsVulnarable == false) return false;
-            GameManager.Instance._sounds.PlaySingleTime(Sounds.AxeHit);
+            if (IsVulnarable == false) return false;
+            IsVulnarable = false;
+            _soundManager.OnSlashed();
             SetDead();
             StartCoroutine(Slicing(plane));
-            IsVulnarable = false;
             return true;
         }
 
@@ -825,30 +825,34 @@ namespace TKRunner
         {
             gameObject.transform.parent = null;
             gameObject.tag = "Untagged";
-            ragdollManager.PrepareSlice();
-            Destroy(capColl);
-            Destroy(TriggerColl);
+            _Components._ragdoll.PrepareSlice();
+            Destroy(_Components.MainColl);
+            Destroy(_Components.TriggerColl);
             yield return null;
-            Plane p = new Plane(transform.position+transform.up*UnityEngine.Random.Range(0.5f,1.2f), transform.position);
+            Vector3 slicePoint = transform.position + transform.up * UnityEngine.Random.Range(0.5f, 1.2f);
+            Plane p = new Plane(Vector3.up, slicePoint);
+            _Components._slicer.SetBlood(slicePoint);
             Destroy(this);
-            _sclicer.Slice(p, 1, null);
+            _Components._slicer.Slice(p, 1, null);
  
         }
+
         public bool PushAway(Vector3 origin, float force)
         {
 
             if (IsVulnarable == false) return false;
-            if (CurrentState != DummyStates.Dead && CurrentState != DummyStates.Drag)
+            if (CurrentState != DummyStates.Dead)
             {
                 Die();
                 Vector3 dir = (transform.position - origin);
                 dir.y = Mathf.Abs(dir.y);
                 dir.Normalize();
                 rb.velocity = dir * force;
-                ragdollManager.PushDoll( dir * force, true);
+                _Components._ragdoll.PushDoll( dir * force, true);
             }
             return true;
         }
+
         public bool KillAndPush(Vector3 force)
         {
             if (IsVulnarable == false) return false;
@@ -858,8 +862,8 @@ namespace TKRunner
                 StopAllCoroutines();
                 Die();
                 rb.velocity = force;
-                ragdollManager.PushDoll(force, true);
-                GameManager.Instance._sounds.PlaySingleTime(Sounds.BatHit);
+                _Components._ragdoll.PushDoll(force, true);
+               // _soundManager.OnHit();
                
             }
             return true;
@@ -875,8 +879,8 @@ namespace TKRunner
 
         public void Defeated()
         {
-            if(capColl!=null)
-                capColl.enabled = false;
+            if(_Components.MainColl != null)
+                _Components.MainColl.enabled = false;
             StopAllCoroutines();
             if (CurrentState != DummyStates.Dead)
             {
@@ -887,7 +891,10 @@ namespace TKRunner
         }
         public void Winner()
         {
-            StopAllCoroutines();
+            if (sideMoving != null) StopCoroutine(sideMoving);
+            if (freeMoving != null) StopCoroutine(freeMoving);
+            if (detecting != null) StopCoroutine(detecting);
+            if (slowingDown != null) StopCoroutine(slowingDown);
             if (CurrentState != DummyStates.Dead)
             {
                 rb.constraints = RigidbodyConstraints.FreezeAll;
@@ -909,8 +916,12 @@ namespace TKRunner
         private void OnTruckCollision(Transform hit)
         {
             Die();
-            ragdollManager.PushDoll( (hit.position - transform.position + transform.forward) * 10,true);
+            _Components._ragdoll.PushDoll( (hit.position - transform.position + transform.forward) * 10,true);
         }
+
+
+        
+
 
         private void OnDestroy()
         {
@@ -918,8 +929,8 @@ namespace TKRunner
         }
         private void OnDisable()
         {
-            if(TriggerColl != null)
-                TriggerColl.enabled = false;
+            if(_Components.TriggerColl != null)
+                _Components.TriggerColl.enabled = false;
             if (disableToken != null)
                 disableToken.Cancel();
             if (jumpToken != null)

@@ -15,10 +15,21 @@ namespace TKRunner
 	public class DummySlicer : CharacterSlicerSampleFast
 	{
 
+		public ParticleSystem BloodParticlesPF;
+
 		public void SliceFrameDelayed(Plane plane, int sliceId, Action<BzSliceTryResult> callBack)
 		{
 			StartCoroutine(SliceWithDelay(plane,sliceId,callBack));
 		}
+
+		public void SetBlood(Vector3 point)
+        {
+            if (BloodParticlesPF == null) { UnityEngine.Debug.LogError("Blood particles not assigned");return; }
+			GameObject b = Instantiate(BloodParticlesPF, transform).gameObject;
+			b.transform.position = point;
+        }
+
+
 		private IEnumerator SliceWithDelay(Plane plane, int sliceId, Action<BzSliceTryResult> callBack)
         {
 			yield return null;
